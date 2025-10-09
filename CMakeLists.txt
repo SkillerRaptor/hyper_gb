@@ -45,10 +45,13 @@ enable_warnings(ProjectWarnings)
 # Source
 #-------------------------------------------------------------------------------------------
 set(SOURCES
+        src/cartridge.c
+        src/gameboy.c
         src/main.c)
 
 set(HEADERS
-)
+        include/cartridge.h
+        include/gameboy.h)
 
 foreach (item IN ITEMS ${SOURCES})
     get_filename_component(src_path "${item}" PATH)
