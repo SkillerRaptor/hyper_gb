@@ -532,3 +532,258 @@ void cpu_set_u3_hl(struct Cpu *cpu, const u8 bit)
     const u8 result = cpu_set_u3(cpu, bit, value);
     mmu_write(cpu->mmu, cpu->registers.hl, result);
 }
+
+// Bit shift instructions
+static u8 cpu_rl(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = cpu_is_flag(cpu, FLAG_C);
+    const bool will_carry = CHECK_BIT(value, 7);
+    const u8 result = (value << 1) | carry;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, will_carry);
+
+    return result;
+}
+
+void cpu_rl_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_rl(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_rl_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_rl(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+void cpu_rla(struct Cpu *cpu)
+{
+    cpu_rl_r8(cpu, R8_A);
+    cpu_set_flag(cpu, FLAG_Z, false);
+}
+
+static u8 cpu_rlc(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = CHECK_BIT(value, 7);
+    const u8 result = (value << 1) | carry;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, carry);
+
+    return result;
+}
+
+void cpu_rlc_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_rlc(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_rlc_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_rlc(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+void cpu_rlca(struct Cpu *cpu)
+{
+    cpu_rlc_r8(cpu, R8_A);
+    cpu_set_flag(cpu, FLAG_Z, false);
+}
+
+static u8 cpu_rr(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = cpu_is_flag(cpu, FLAG_C);
+    const bool will_carry = CHECK_BIT(value, 0);
+
+    const u8 result = (value >> 1) | (carry << 7);
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, will_carry);
+
+    return result;
+}
+
+void cpu_rr_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_rr(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_rr_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_rr(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+void cpu_rra(struct Cpu *cpu)
+{
+    cpu_rr_r8(cpu, R8_A);
+    cpu_set_flag(cpu, FLAG_Z, false);
+}
+
+static u8 cpu_rrc(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = CHECK_BIT(value, 0);
+    const u8 result = (value >> 1) | (carry << 7);
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, carry);
+
+    return result;
+}
+
+void cpu_rrc_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_rrc(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_rrc_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_rrc(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+void cpu_rrca(struct Cpu *cpu)
+{
+    cpu_rrc_r8(cpu, R8_A);
+    cpu_set_flag(cpu, FLAG_Z, false);
+}
+
+static u8 cpu_sla(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = CHECK_BIT(value, 7);
+    const u8 result = value << 1;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, carry);
+
+    return result;
+}
+
+void cpu_sla_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_sla(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_sla_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_sla(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static u8 cpu_sra(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = CHECK_BIT(value, 0);
+    const u8 top_bit = CHECK_BIT(value, 7);
+
+    u8 result = value >> 1;
+    if (top_bit)
+    {
+        result = SET_BIT(result, 7);
+    }
+    else
+    {
+        result = CLEAR_BIT(result, 7);
+    }
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, carry);
+
+    return result;
+}
+
+void cpu_sra_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_sra(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_sra_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_sra(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static u8 cpu_srl(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = CHECK_BIT(value, 0);
+    const u8 result = value >> 1;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, carry);
+
+    return result;
+}
+
+void cpu_srl_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_srl(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_srl_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_srl(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static u8 cpu_swap(struct Cpu *cpu, const u8 value)
+{
+    const u8 lower_nibble = value & 0x0f;
+    const u8 upper_nibble = (value & 0xf0) >> 4;
+    const u8 result = (lower_nibble << 4) | upper_nibble;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, false);
+
+    return result;
+}
+
+void cpu_swap_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_swap(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_swap_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_swap(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}

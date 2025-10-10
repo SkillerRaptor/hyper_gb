@@ -191,6 +191,68 @@ void cpu_set_u3_r8(struct Cpu *, u8 bit, enum Register8 dst);
 /// SET u3,[HL]
 void cpu_set_u3_hl(struct Cpu *, u8 bit);
 
+// Bit shift instructions
+
+/// RL r8
+void cpu_rl_r8(struct Cpu *, enum Register8 dst);
+
+/// RL [HL]
+void cpu_rl_hl(struct Cpu *);
+
+/// RLA
+void cpu_rla(struct Cpu *);
+
+/// RLC r8
+void cpu_rlc_r8(struct Cpu *, enum Register8 dst);
+
+/// RLC [HL]
+void cpu_rlc_hl(struct Cpu *);
+
+/// RLCA
+void cpu_rlca(struct Cpu *);
+
+/// RR r8
+void cpu_rr_r8(struct Cpu *, enum Register8 dst);
+
+/// RR [HL]
+void cpu_rr_hl(struct Cpu *);
+
+/// RRA
+void cpu_rra(struct Cpu *);
+
+/// RRC r8
+void cpu_rrc_r8(struct Cpu *, enum Register8 dst);
+
+/// RRC [HL]
+void cpu_rrc_hl(struct Cpu *);
+
+/// RRCA
+void cpu_rrca(struct Cpu *);
+
+/// SLA r8
+void cpu_sla_r8(struct Cpu *, enum Register8 dst);
+
+/// SLA [HL]
+void cpu_sla_hl(struct Cpu *);
+
+/// SRA r8
+void cpu_sra_r8(struct Cpu *, enum Register8 dst);
+
+/// SRA [HL]
+void cpu_sra_hl(struct Cpu *);
+
+/// SRL r8
+void cpu_srl_r8(struct Cpu *, enum Register8 dst);
+
+/// SRL [HL]
+void cpu_srl_hl(struct Cpu *);
+
+/// SWAP r8
+void cpu_swap_r8(struct Cpu *, enum Register8 dst);
+
+/// SWAP [HL]
+void cpu_swap_hl(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif
