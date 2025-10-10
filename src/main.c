@@ -18,10 +18,9 @@ int main(const int argc, const char **argv)
 
     const char *rom = argv[1];
 
-    struct Gameboy gameboy = { 0 };
-    gameboy_init(&gameboy, rom);
-    gameboy_run(&gameboy);
-    gameboy_shutdown(&gameboy);
+    struct Gameboy *gameboy = gameboy_create(rom);
+    gameboy_run(gameboy);
+    gameboy_destroy(gameboy);
 
     return 0;
 }

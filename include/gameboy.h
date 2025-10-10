@@ -6,14 +6,18 @@
 
 #pragma once
 
-#include "cartridge.h"
+struct Cartridge;
+struct Cpu;
+struct Mmu;
 
 struct Gameboy
 {
-    struct Cartridge cartridge;
+    struct Cartridge *cartridge;
+    struct Mmu *mmu;
+    struct Cpu *cpu;
 };
 
-void gameboy_init(struct Gameboy *gameboy, const char *rom);
-void gameboy_shutdown(struct Gameboy *gameboy);
+struct Gameboy *gameboy_create(const char *rom);
+void gameboy_destroy(struct Gameboy *);
 
-void gameboy_run(struct Gameboy *gameboy);
+void gameboy_run(struct Gameboy *);

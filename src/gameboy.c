@@ -6,21 +6,35 @@
 
 #include "gameboy.h"
 
-#include <assert.h>
+#include <stdlib.h>
 
-void gameboy_init(struct Gameboy *gameboy, const char *rom)
+#include "cartridge.h"
+#include "cpu.h"
+#include "mmu.h"
+
+struct Gameboy *gameboy_create(const char *rom)
 {
-    assert(gameboy != NULL);
-    assert(rom != NULL);
+    struct Gameboy *gameboy = malloc(sizeof(struct Gameboy));
+    gameboy->cartridge = cartridge_create(rom);
+    gameboy->mmu = mmu_create(gameboy->cartridge);
+    gameboy->cpu = cpu_create(gameboy->mmu);
 
-    cartridge_init(&gameboy->cartridge, rom);
+    return gameboy;
 }
 
-void gameboy_shutdown(struct Gameboy *gameboy)
+void gameboy_destroy(struct Gameboy *gameboy)
 {
-    assert(gameboy != NULL);
+    mmu_destroy(gameboy->mmu);
+    cpu_destroy(gameboy->cpu);
+    cartridge_destroy(gameboy->cartridge);
 
-    cartridge_shutdown(&gameboy->cartridge);
+    free(gameboy);
 }
 
-void gameboy_run(struct Gameboy *gameboy) { assert(gameboy != NULL); }
+void gameboy_run(struct Gameboy *gameboy)
+{
+    for (;;)
+    {
+        cpu_tick(gameboy->cpu);
+    }
+}

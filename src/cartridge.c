@@ -10,13 +10,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void cartridge_init(struct Cartridge *cartridge, const char *rom)
+struct Cartridge *cartridge_create(const char *rom)
 {
-    assert(cartridge != NULL);
-    assert(rom != NULL);
+    struct Cartridge *cartridge = malloc(sizeof(struct Cartridge));
 
     FILE *file = fopen(rom, "rb");
-    assert(file != NULL);
+    if (file == NULL)
+    {
+        free(cartridge);
+        return NULL;
+    }
 
     fseek(file, 0, SEEK_END);
     cartridge->rom_size = ftell(file);
@@ -25,18 +28,20 @@ void cartridge_init(struct Cartridge *cartridge, const char *rom)
     cartridge->rom = malloc(cartridge->rom_size);
     assert(cartridge->rom != NULL);
 
-    if (fread(cartridge->rom, sizeof(uint8_t), cartridge->rom_size, file) != cartridge->rom_size)
+    if (fread(cartridge->rom, sizeof(u8), cartridge->rom_size, file) != cartridge->rom_size)
     {
-        // TODO: Handle error
-        return;
+        fclose(file);
+        free(cartridge);
+        return NULL;
     }
 
     fclose(file);
+
+    return cartridge;
 }
 
-void cartridge_shutdown(struct Cartridge *cartridge)
+void cartridge_destroy(struct Cartridge *cartridge)
 {
-    assert(cartridge != NULL);
-
     free(cartridge->rom);
+    free(cartridge);
 }

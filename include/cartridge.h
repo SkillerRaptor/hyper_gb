@@ -6,13 +6,13 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "types.h"
 
 struct Cartridge
 {
-    uint8_t *rom;
-    size_t rom_size;
+    usize rom_size;
+    u8 *rom;
 };
 
-void cartridge_init(struct Cartridge *cartridge, const char *rom);
-void cartridge_shutdown(struct Cartridge *cartridge);
+struct Cartridge *cartridge_create(const char *rom);
+void cartridge_destroy(struct Cartridge *);
