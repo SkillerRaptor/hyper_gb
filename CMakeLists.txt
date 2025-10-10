@@ -8,11 +8,19 @@
 # CMake Info
 #-------------------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.1...4.1)
-project(hyper_gb LANGUAGES C)
+project(hyper_gb LANGUAGES C CXX)
 
 #-------------------------------------------------------------------------------------------
 # Standard Settings
 #-------------------------------------------------------------------------------------------
+set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 include(cmake/Doxygen.cmake)
@@ -33,33 +41,21 @@ add_library(ProjectWarnings INTERFACE)
 #-------------------------------------------------------------------------------------------
 # Warnings
 #-------------------------------------------------------------------------------------------
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 include(cmake/CompilerWarnings.cmake)
 enable_warnings(ProjectWarnings)
 
 #-------------------------------------------------------------------------------------------
 # Source
 #-------------------------------------------------------------------------------------------
+add_subdirectory(third_party)
+add_subdirectory(core)
+add_subdirectory(tests)
+
 set(SOURCES
-        src/cartridge.c
-        src/cpu.c
-        src/cpu_instructions.c
-        src/gameboy.c
-        src/main.c
-        src/mmu.c)
+        src/main.c)
 
 set(HEADERS
-        include/cartridge.h
-        include/cpu.h
-        include/cpu_instructions.h
-        include/gameboy.h
-        include/mmu.h
-        include/prerequisites.h
-        include/types.h)
+)
 
 foreach (item IN ITEMS ${SOURCES})
     get_filename_component(src_path "${item}" PATH)
@@ -76,5 +72,5 @@ foreach (item IN ITEMS ${HEADERS})
 endforeach ()
 
 add_executable(hyper_gb ${SOURCES} ${HEADERS})
-target_link_libraries(hyper_gb PRIVATE ProjectOptions ProjectWarnings)
+target_link_libraries(hyper_gb PRIVATE ProjectOptions ProjectWarnings hyper_gb_core)
 target_include_directories(hyper_gb PRIVATE include)

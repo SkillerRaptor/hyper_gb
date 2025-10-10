@@ -58,6 +58,7 @@ IncludeCategories:
 IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: false
+IndentExternBlock: NoIndent
 IndentPPDirectives: AfterHash
 IndentRequiresClause: true
 IndentWidth: 4

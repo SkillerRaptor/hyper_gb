@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include <gameboy.h>
 #include <stdio.h>
-
-#include "gameboy.h"
 
 int main(const int argc, const char **argv)
 {
