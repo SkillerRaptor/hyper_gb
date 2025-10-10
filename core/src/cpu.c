@@ -417,16 +417,16 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x01: cpu_ld_r16_n16(cpu, R16_BC); break;
     case 0x02: cpu_ld_r16_a(cpu, R16_BC); break;
     case 0x03: break;
-    case 0x04: break;
-    case 0x05: break;
+    case 0x04: cpu_inc_r8(cpu, R8_B); break;
+    case 0x05: cpu_dec_r8(cpu, R8_B); break;
     case 0x06: cpu_ld_r8_n8(cpu, R8_B); break;
     case 0x07: break;
     case 0x08: break;
     case 0x09: break;
     case 0x0a: cpu_ld_a_r16(cpu, R16_BC); break;
     case 0x0b: break;
-    case 0x0c: break;
-    case 0x0d: break;
+    case 0x0c: cpu_inc_r8(cpu, R8_C); break;
+    case 0x0d: cpu_dec_r8(cpu, R8_C); break;
     case 0x0e: cpu_ld_r8_n8(cpu, R8_C); break;
     case 0x0f: break;
 
@@ -434,16 +434,16 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x11: cpu_ld_r16_n16(cpu, R16_DE); break;
     case 0x12: cpu_ld_r16_a(cpu, R16_DE); break;
     case 0x13: break;
-    case 0x14: break;
-    case 0x15: break;
+    case 0x14: cpu_inc_r8(cpu, R8_D); break;
+    case 0x15: cpu_dec_r8(cpu, R8_D); break;
     case 0x16: cpu_ld_r8_n8(cpu, R8_D); break;
     case 0x17: break;
     case 0x18: break;
     case 0x19: break;
     case 0x1a: cpu_ld_a_r16(cpu, R16_DE); break;
     case 0x1b: break;
-    case 0x1c: break;
-    case 0x1d: break;
+    case 0x1c: cpu_inc_r8(cpu, R8_E); break;
+    case 0x1d: cpu_dec_r8(cpu, R8_E); break;
     case 0x1e: cpu_ld_r8_n8(cpu, R8_E); break;
     case 0x1f: break;
 
@@ -451,16 +451,16 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x21: cpu_ld_r16_n16(cpu, R16_HL); break;
     case 0x22: cpu_ld_hli_a(cpu); break;
     case 0x23: break;
-    case 0x24: break;
-    case 0x25: break;
+    case 0x24: cpu_inc_r8(cpu, R8_H); break;
+    case 0x25: cpu_dec_r8(cpu, R8_H); break;
     case 0x26: cpu_ld_r8_n8(cpu, R8_H); break;
     case 0x27: break;
     case 0x28: break;
     case 0x29: break;
     case 0x2a: cpu_ld_a_hli(cpu); break;
     case 0x2b: break;
-    case 0x2c: break;
-    case 0x2d: break;
+    case 0x2c: cpu_inc_r8(cpu, R8_L); break;
+    case 0x2d: cpu_dec_r8(cpu, R8_L); break;
     case 0x2e: cpu_ld_r8_n8(cpu, R8_L); break;
     case 0x2f: break;
 
@@ -468,16 +468,16 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x31: break;
     case 0x32: cpu_ld_hld_a(cpu); break;
     case 0x33: break;
-    case 0x34: break;
-    case 0x35: break;
+    case 0x34: cpu_inc_hl(cpu); break;
+    case 0x35: cpu_dec_hl(cpu); break;
     case 0x36: cpu_ld_hl_n8(cpu); break;
     case 0x37: break;
     case 0x38: break;
     case 0x39: break;
     case 0x3a: cpu_ld_a_hld(cpu); break;
     case 0x3b: break;
-    case 0x3c: break;
-    case 0x3d: break;
+    case 0x3c: cpu_inc_r8(cpu, R8_A); break;
+    case 0x3d: cpu_dec_r8(cpu, R8_A); break;
     case 0x3e: cpu_ld_r8_n8(cpu, R8_A); break;
     case 0x3f: break;
 
@@ -549,39 +549,39 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x7e: cpu_ld_r8_hl(cpu, R8_A); break;
     case 0x7f: cpu_ld_r8_r8(cpu, R8_A, R8_A); break;
 
-    case 0x80: break;
-    case 0x81: break;
-    case 0x82: break;
-    case 0x83: break;
-    case 0x84: break;
-    case 0x85: break;
-    case 0x86: break;
-    case 0x87: break;
-    case 0x88: break;
-    case 0x89: break;
-    case 0x8a: break;
-    case 0x8b: break;
-    case 0x8c: break;
-    case 0x8d: break;
-    case 0x8e: break;
-    case 0x8f: break;
+    case 0x80: cpu_add_a_r8(cpu, R8_B); break;
+    case 0x81: cpu_add_a_r8(cpu, R8_C); break;
+    case 0x82: cpu_add_a_r8(cpu, R8_D); break;
+    case 0x83: cpu_add_a_r8(cpu, R8_E); break;
+    case 0x84: cpu_add_a_r8(cpu, R8_H); break;
+    case 0x85: cpu_add_a_r8(cpu, R8_L); break;
+    case 0x86: cpu_add_a_hl(cpu); break;
+    case 0x87: cpu_add_a_r8(cpu, R8_A); break;
+    case 0x88: cpu_adc_a_r8(cpu, R8_B); break;
+    case 0x89: cpu_adc_a_r8(cpu, R8_C); break;
+    case 0x8a: cpu_adc_a_r8(cpu, R8_D); break;
+    case 0x8b: cpu_adc_a_r8(cpu, R8_E); break;
+    case 0x8c: cpu_adc_a_r8(cpu, R8_H); break;
+    case 0x8d: cpu_adc_a_r8(cpu, R8_L); break;
+    case 0x8e: cpu_adc_a_hl(cpu); break;
+    case 0x8f: cpu_adc_a_r8(cpu, R8_A); break;
 
-    case 0x90: break;
-    case 0x91: break;
-    case 0x92: break;
-    case 0x93: break;
-    case 0x94: break;
-    case 0x95: break;
-    case 0x96: break;
-    case 0x97: break;
-    case 0x98: break;
-    case 0x99: break;
-    case 0x9a: break;
-    case 0x9b: break;
-    case 0x9c: break;
-    case 0x9d: break;
-    case 0x9e: break;
-    case 0x9f: break;
+    case 0x90: cpu_sub_a_r8(cpu, R8_B); break;
+    case 0x91: cpu_sub_a_r8(cpu, R8_C); break;
+    case 0x92: cpu_sub_a_r8(cpu, R8_D); break;
+    case 0x93: cpu_sub_a_r8(cpu, R8_E); break;
+    case 0x94: cpu_sub_a_r8(cpu, R8_H); break;
+    case 0x95: cpu_sub_a_r8(cpu, R8_L); break;
+    case 0x96: cpu_sub_a_hl(cpu); break;
+    case 0x97: cpu_sub_a_r8(cpu, R8_A); break;
+    case 0x98: cpu_sbc_a_r8(cpu, R8_B); break;
+    case 0x99: cpu_sbc_a_r8(cpu, R8_C); break;
+    case 0x9a: cpu_sbc_a_r8(cpu, R8_D); break;
+    case 0x9b: cpu_sbc_a_r8(cpu, R8_E); break;
+    case 0x9c: cpu_sbc_a_r8(cpu, R8_H); break;
+    case 0x9d: cpu_sbc_a_r8(cpu, R8_L); break;
+    case 0x9e: cpu_sbc_a_hl(cpu); break;
+    case 0x9f: cpu_sbc_a_r8(cpu, R8_A); break;
 
     case 0xa0: break;
     case 0xa1: break;
@@ -608,14 +608,14 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xb5: break;
     case 0xb6: break;
     case 0xb7: break;
-    case 0xb8: break;
-    case 0xb9: break;
-    case 0xba: break;
-    case 0xbb: break;
-    case 0xbc: break;
-    case 0xbd: break;
-    case 0xbe: break;
-    case 0xbf: break;
+    case 0xb8: cpu_cp_a_r8(cpu, R8_B); break;
+    case 0xb9: cpu_cp_a_r8(cpu, R8_C); break;
+    case 0xba: cpu_cp_a_r8(cpu, R8_D); break;
+    case 0xbb: cpu_cp_a_r8(cpu, R8_E); break;
+    case 0xbc: cpu_cp_a_r8(cpu, R8_H); break;
+    case 0xbd: cpu_cp_a_r8(cpu, R8_L); break;
+    case 0xbe: cpu_cp_a_hl(cpu); break;
+    case 0xbf: cpu_cp_a_r8(cpu, R8_A); break;
 
     case 0xc0: break;
     case 0xc1: break;
@@ -623,7 +623,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xc3: break;
     case 0xc4: break;
     case 0xc5: break;
-    case 0xc6: break;
+    case 0xc6: cpu_add_a_n8(cpu); break;
     case 0xc7: break;
     case 0xc8: break;
     case 0xc9: break;
@@ -631,7 +631,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xcb: cpu_execute_cb_opcode(cpu); break;
     case 0xcc: break;
     case 0xcd: break;
-    case 0xce: break;
+    case 0xce: cpu_adc_a_n8(cpu); break;
     case 0xcf: break;
 
     case 0xd0: break;
@@ -640,7 +640,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xd3: break;
     case 0xd4: break;
     case 0xd5: break;
-    case 0xd6: break;
+    case 0xd6: cpu_sub_a_n8(cpu); break;
     case 0xd7: break;
     case 0xd8: break;
     case 0xd9: break;
@@ -648,7 +648,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xdb: break;
     case 0xdc: break;
     case 0xdd: break;
-    case 0xde: break;
+    case 0xde: cpu_sbc_a_n8(cpu); break;
     case 0xdf: break;
 
     case 0xe0: cpu_ldh_n8_a(cpu); break;
@@ -682,7 +682,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xfb: break;
     case 0xfc: break;
     case 0xfd: break;
-    case 0xfe: break;
+    case 0xfe: cpu_cp_a_n8(cpu); break;
     case 0xff: break;
 
     default: break;

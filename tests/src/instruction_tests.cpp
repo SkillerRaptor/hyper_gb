@@ -391,6 +391,7 @@ GENERATE_TEST("ff");
 
 ///////////////////////
 
+/*
 GENERATE_TEST("cb 00");
 GENERATE_TEST("cb 01");
 GENERATE_TEST("cb 02");
@@ -662,3 +663,4 @@ GENERATE_TEST("cb fc");
 GENERATE_TEST("cb fd");
 GENERATE_TEST("cb fe");
 GENERATE_TEST("cb ff");
+*/

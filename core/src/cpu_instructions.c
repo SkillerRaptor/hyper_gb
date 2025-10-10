@@ -129,3 +129,208 @@ void cpu_ld_a_hld(struct Cpu *cpu)
     cpu->registers.a = value;
     cpu->registers.hl -= 1;
 }
+
+// 8-bit arithmetic instructions
+static void cpu_adc_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = cpu_is_flag(cpu, FLAG_C);
+    const u32 result_full = cpu->registers.a + value + carry;
+    const u8 result = (u8) result_full;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.a & 0x0f) + (value & 0x0f) + carry) > 0x0f);
+    cpu_set_flag(cpu, FLAG_C, result_full > 0xff);
+
+    cpu->registers.a = result;
+}
+
+void cpu_adc_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_adc_a(cpu, value);
+}
+
+void cpu_adc_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_adc_a(cpu, value);
+}
+
+void cpu_adc_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_adc_a(cpu, value);
+}
+
+static void cpu_add_a(struct Cpu *cpu, const u8 value)
+{
+    const u32 result_full = cpu->registers.a + value;
+    const u8 result = (u8) result_full;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.a & 0x0f) + (value & 0x0f)) > 0x0f);
+    cpu_set_flag(cpu, FLAG_C, result_full > 0xff);
+
+    cpu->registers.a = result;
+}
+
+void cpu_add_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_add_a(cpu, value);
+}
+
+void cpu_add_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_add_a(cpu, value);
+}
+
+void cpu_add_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_add_a(cpu, value);
+}
+
+static void cpu_cp_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = cpu->registers.a - value;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, true);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.a & 0x0f) - (value & 0x0f)) < 0x00);
+    cpu_set_flag(cpu, FLAG_C, cpu->registers.a < value);
+}
+
+void cpu_cp_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_cp_a(cpu, value);
+}
+
+void cpu_cp_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_cp_a(cpu, value);
+}
+
+void cpu_cp_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_cp_a(cpu, value);
+}
+
+static uint8_t cpu_dec(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = value - 1;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, true);
+    cpu_set_flag(cpu, FLAG_H, (result & 0x0f) == 0x0f);
+
+    return result;
+}
+
+void cpu_dec_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_dec(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_dec_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_dec(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static uint8_t cpu_inc(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = value + 1;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, (result & 0x0f) == 0x00);
+
+    return result;
+}
+
+void cpu_inc_r8(struct Cpu *cpu, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_inc(cpu, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_inc_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_inc(cpu, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static void cpu_sbc_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 carry = cpu_is_flag(cpu, FLAG_C);
+    const i32 result_full = cpu->registers.a - value - carry;
+    const u8 result = (u8) result_full;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, true);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.a & 0x0f) - (value & 0x0f) - carry) < 0x00);
+    cpu_set_flag(cpu, FLAG_C, result_full < 0x00);
+
+    cpu->registers.a = result;
+}
+
+void cpu_sbc_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_sbc_a(cpu, value);
+}
+
+void cpu_sbc_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_sbc_a(cpu, value);
+}
+
+void cpu_sbc_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_sbc_a(cpu, value);
+}
+
+static void cpu_sub_a(struct Cpu *cpu, const u8 value)
+{
+    const i32 result_full = cpu->registers.a - value;
+    const u8 result = (u8) result_full;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, true);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.a & 0x0f) - (value & 0x0f)) < 0x00);
+    cpu_set_flag(cpu, FLAG_C, result_full < 0x00);
+
+    cpu->registers.a = result;
+}
+
+void cpu_sub_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_sub_a(cpu, value);
+}
+
+void cpu_sub_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_sub_a(cpu, value);
+}
+
+void cpu_sub_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_sub_a(cpu, value);
+}

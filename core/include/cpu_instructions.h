@@ -69,6 +69,65 @@ void cpu_ld_a_hli(struct Cpu *);
 /// LD A,[HLD]
 void cpu_ld_a_hld(struct Cpu *);
 
+// 8-bit arithmetic instructions
+
+/// ADC A,r8
+void cpu_adc_a_r8(struct Cpu *, enum Register8 src);
+
+/// ADC A,[HL]
+void cpu_adc_a_hl(struct Cpu *);
+
+/// ADC A,n8
+void cpu_adc_a_n8(struct Cpu *);
+
+/// ADD A,r8
+void cpu_add_a_r8(struct Cpu *, enum Register8 src);
+
+/// ADD A,[HL]
+void cpu_add_a_hl(struct Cpu *);
+
+/// ADD A,n8
+void cpu_add_a_n8(struct Cpu *);
+
+/// CP A,r8
+void cpu_cp_a_r8(struct Cpu *, enum Register8 src);
+
+/// CP A,[HL]
+void cpu_cp_a_hl(struct Cpu *);
+
+/// CP A,n8
+void cpu_cp_a_n8(struct Cpu *);
+
+/// DEC r8
+void cpu_dec_r8(struct Cpu *, enum Register8 dst);
+
+/// DEC [HL]
+void cpu_dec_hl(struct Cpu *);
+
+/// INC r8
+void cpu_inc_r8(struct Cpu *, enum Register8 dst);
+
+/// INC [HL]
+void cpu_inc_hl(struct Cpu *);
+
+/// SBC A,r8
+void cpu_sbc_a_r8(struct Cpu *, enum Register8 src);
+
+/// SBC A,[HL]
+void cpu_sbc_a_hl(struct Cpu *);
+
+/// SBC A,n8
+void cpu_sbc_a_n8(struct Cpu *);
+
+/// SUB A,r8
+void cpu_sub_a_r8(struct Cpu *, enum Register8 src);
+
+/// SUB A,[HL]
+void cpu_sub_a_hl(struct Cpu *);
+
+/// SUB A,n8
+void cpu_sub_a_n8(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif
