@@ -787,3 +787,84 @@ void cpu_swap_hl(struct Cpu *cpu)
     const u8 result = cpu_swap(cpu, value);
     mmu_write(cpu->mmu, cpu->registers.hl, result);
 }
+
+// Jumps and subroutine instructions
+
+void cpu_call_n16(struct Cpu *cpu)
+{
+    const u16 address = cpu_fetch_u16(cpu);
+    cpu_push_stack(cpu, cpu->registers.pc);
+    cpu->registers.pc = address;
+}
+
+void cpu_call_cc_n16(struct Cpu *cpu, const enum ConditionCode cc)
+{
+    const u16 address = cpu_fetch_u16(cpu);
+
+    if (cpu_is_condition(cpu, cc))
+    {
+        cpu_push_stack(cpu, cpu->registers.pc);
+        cpu->registers.pc = address;
+    }
+}
+
+void cpu_jp_hl(struct Cpu *cpu) { cpu->registers.pc = cpu->registers.hl; }
+
+void cpu_jp_n16(struct Cpu *cpu)
+{
+    const u16 address = cpu_fetch_u16(cpu);
+    cpu->registers.pc = address;
+}
+
+void cpu_jp_cc_n16(struct Cpu *cpu, const enum ConditionCode cc)
+{
+    const u16 address = cpu_fetch_u16(cpu);
+    if (cpu_is_condition(cpu, cc))
+    {
+        cpu->registers.pc = address;
+    }
+}
+
+void cpu_jr_i8(struct Cpu *cpu)
+{
+    const i8 offset = cpu_fetch_i8(cpu);
+    const u16 address = (u16) ((i32) cpu->registers.pc + offset);
+    cpu->registers.pc = address;
+}
+
+void cpu_jr_cc_i8(struct Cpu *cpu, const enum ConditionCode cc)
+{
+    const i8 offset = cpu_fetch_i8(cpu);
+    if (cpu_is_condition(cpu, cc))
+    {
+        const u16 address = (u16) ((i32) cpu->registers.pc + offset);
+        cpu->registers.pc = address;
+    }
+}
+
+void cpu_ret_cc(struct Cpu *cpu, const enum ConditionCode cc)
+{
+    if (cpu_is_condition(cpu, cc))
+    {
+        const u16 address = cpu_pop_stack(cpu);
+        cpu->registers.pc = address;
+    }
+}
+
+void cpu_ret(struct Cpu *cpu)
+{
+    const u16 address = cpu_pop_stack(cpu);
+    cpu->registers.pc = address;
+}
+
+void cpu_reti(struct Cpu *cpu)
+{
+    cpu_ret(cpu);
+    // FIXME: Enable interrupts
+}
+
+void cpu_rst_vec(struct Cpu *cpu, const enum Rst vec)
+{
+    cpu_push_stack(cpu, cpu->registers.pc);
+    cpu->registers.pc = (u16) vec;
+}

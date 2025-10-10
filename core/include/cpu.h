@@ -111,6 +111,26 @@ enum Flag
     FLAG_C = 1 << 4,
 };
 
+enum ConditionCode
+{
+    CC_Z,
+    CC_NZ,
+    CC_C,
+    CC_NC,
+};
+
+enum Rst
+{
+    RST_00 = 0x00,
+    RST_08 = 0x08,
+    RST_10 = 0x10,
+    RST_18 = 0x18,
+    RST_20 = 0x20,
+    RST_28 = 0x28,
+    RST_30 = 0x30,
+    RST_38 = 0x38,
+};
+
 struct Cpu
 {
     struct Mmu *mmu;
@@ -130,6 +150,11 @@ uint16_t cpu_get_register16(struct Cpu *, enum Register16);
 
 void cpu_set_flag(struct Cpu *, enum Flag, bool);
 bool cpu_is_flag(struct Cpu *, enum Flag);
+
+bool cpu_is_condition(struct Cpu *, enum ConditionCode);
+
+void cpu_push_stack(struct Cpu *, u16);
+u16 cpu_pop_stack(struct Cpu *);
 
 i8 cpu_fetch_i8(struct Cpu *cpu);
 u8 cpu_fetch_u8(struct Cpu *cpu);

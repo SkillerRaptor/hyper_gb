@@ -253,6 +253,41 @@ void cpu_swap_r8(struct Cpu *, enum Register8 dst);
 /// SWAP [HL]
 void cpu_swap_hl(struct Cpu *);
 
+// Jumps and subroutine instructions
+
+/// CALL n16
+void cpu_call_n16(struct Cpu *);
+
+/// CALL cc,n16
+void cpu_call_cc_n16(struct Cpu *, enum ConditionCode);
+
+/// JP HL
+void cpu_jp_hl(struct Cpu *);
+
+/// JP n16
+void cpu_jp_n16(struct Cpu *);
+
+/// JP cc,n16
+void cpu_jp_cc_n16(struct Cpu *, enum ConditionCode);
+
+/// JR i8
+void cpu_jr_i8(struct Cpu *);
+
+/// JR cc,i8
+void cpu_jr_cc_i8(struct Cpu *, enum ConditionCode);
+
+/// RET cc
+void cpu_ret_cc(struct Cpu *, enum ConditionCode);
+
+/// RET
+void cpu_ret(struct Cpu *);
+
+/// RETI
+void cpu_reti(struct Cpu *);
+
+/// RST vec
+void cpu_rst_vec(struct Cpu *, enum Rst vec);
+
 #ifdef __cplusplus
 }
 #endif
