@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #include "prerequisites.h"
 #include "types.h"
 
@@ -77,6 +79,33 @@ struct Registers
     u16 pc;
 };
 
+enum Register8
+{
+    R8_A,
+    R8_B,
+    R8_C,
+    R8_D,
+    R8_E,
+    R8_H,
+    R8_L,
+};
+
+enum Register16
+{
+    R16_AF,
+    R16_BC,
+    R16_DE,
+    R16_HL,
+};
+
+enum Flag
+{
+    FLAG_Z = 1 << 7,
+    FLAG_N = 1 << 6,
+    FLAG_H = 1 << 5,
+    FLAG_C = 1 << 4,
+};
+
 struct Cpu
 {
     struct Mmu *mmu;
@@ -86,5 +115,18 @@ struct Cpu
 
 struct Cpu *cpu_create(struct Mmu *);
 void cpu_destroy(struct Cpu *);
+
+void cpu_set_register8(struct Cpu *, enum Register8, u8);
+uint8_t cpu_get_register8(struct Cpu *, enum Register8);
+
+void cpu_set_register16(struct Cpu *, enum Register16, u16);
+uint16_t cpu_get_register16(struct Cpu *, enum Register16);
+
+void cpu_set_flag(struct Cpu *, enum Flag, bool);
+bool cpu_is_flag(struct Cpu *, enum Flag);
+
+i8 cpu_fetch_i8(struct Cpu *cpu);
+u8 cpu_fetch_u8(struct Cpu *cpu);
+u16 cpu_fetch_u16(struct Cpu *cpu);
 
 void cpu_tick(struct Cpu *);

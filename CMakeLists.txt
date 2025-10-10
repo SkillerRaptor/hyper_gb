@@ -47,6 +47,7 @@ enable_warnings(ProjectWarnings)
 set(SOURCES
         src/cartridge.c
         src/cpu.c
+        src/cpu_instructions.c
         src/gameboy.c
         src/main.c
         src/mmu.c)
@@ -54,6 +55,7 @@ set(SOURCES
 set(HEADERS
         include/cartridge.h
         include/cpu.h
+        include/cpu_instructions.h
         include/gameboy.h
         include/mmu.h
         include/prerequisites.h
@@ -76,12 +78,3 @@ endforeach ()
 add_executable(hyper_gb ${SOURCES} ${HEADERS})
 target_link_libraries(hyper_gb PRIVATE ProjectOptions ProjectWarnings)
 target_include_directories(hyper_gb PRIVATE include)
-
-if (WIN32)
-    target_compile_definitions(
-            hyper_gb
-            PRIVATE
-            _CRT_SECURE_NO_WARNINGS
-            NOMINMAX
-            WIN32_LEAN_AND_MEAN)
-endif ()
