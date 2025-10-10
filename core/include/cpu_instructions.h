@@ -128,6 +128,17 @@ void cpu_sub_a_hl(struct Cpu *);
 /// SUB A,n8
 void cpu_sub_a_n8(struct Cpu *);
 
+// 16-bit arithmetic instructions
+
+/// ADD HL,r16
+void cpu_add_hl_r16(struct Cpu *, enum Register16 src);
+
+/// DEC r16
+void cpu_dec_r16(struct Cpu *, enum Register16 dst);
+
+/// INC r16
+void cpu_inc_r16(struct Cpu *, enum Register16 dst);
+
 #ifdef __cplusplus
 }
 #endif

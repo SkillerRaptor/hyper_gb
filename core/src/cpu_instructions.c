@@ -334,3 +334,33 @@ void cpu_sub_a_n8(struct Cpu *cpu)
     const u8 value = cpu_fetch_u8(cpu);
     cpu_sub_a(cpu, value);
 }
+
+// 16-bit arithmetic instructions
+void cpu_add_hl_r16(struct Cpu *cpu, const enum Register16 src)
+{
+    const u16 value = cpu_get_register16(cpu, src);
+    const u32 result_full = cpu->registers.hl + value;
+    const u16 result = (u16) result_full;
+
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.hl & 0x0fff) + (value & 0x0fff)) > 0x0fff);
+    cpu_set_flag(cpu, FLAG_C, (result_full & 0x10000) != 0);
+
+    cpu->registers.hl = result;
+}
+
+void cpu_dec_r16(struct Cpu *cpu, const enum Register16 dst)
+{
+    const u16 value = cpu_get_register16(cpu, dst);
+    const u32 result = value - 1;
+
+    cpu_set_register16(cpu, dst, result);
+}
+
+void cpu_inc_r16(struct Cpu *cpu, const enum Register16 dst)
+{
+    const u16 value = cpu_get_register16(cpu, dst);
+    const u32 result = value + 1;
+
+    cpu_set_register16(cpu, dst, result);
+}
