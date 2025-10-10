@@ -345,6 +345,17 @@ void cpu_ei(struct Cpu *);
 /// HALT
 void cpu_halt(struct Cpu *);
 
+// Miscellaneous instructions
+
+/// DAA
+void cpu_daa(struct Cpu *);
+
+/// NOP
+void cpu_nop(struct Cpu *);
+
+/// STOP
+void cpu_stop(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif

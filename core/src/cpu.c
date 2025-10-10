@@ -448,7 +448,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
 
     switch (opcode)
     {
-    case 0x00: break;
+    case 0x00: cpu_nop(cpu); break;
     case 0x01: cpu_ld_r16_n16(cpu, R16_BC); break;
     case 0x02: cpu_ld_r16_a(cpu, R16_BC); break;
     case 0x03: cpu_inc_r16(cpu, R16_BC); break;
@@ -465,7 +465,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x0e: cpu_ld_r8_n8(cpu, R8_C); break;
     case 0x0f: cpu_rrca(cpu); break;
 
-    case 0x10: break;
+    case 0x10: cpu_stop(cpu); break;
     case 0x11: cpu_ld_r16_n16(cpu, R16_DE); break;
     case 0x12: cpu_ld_r16_a(cpu, R16_DE); break;
     case 0x13: cpu_inc_r16(cpu, R16_DE); break;
@@ -489,7 +489,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x24: cpu_inc_r8(cpu, R8_H); break;
     case 0x25: cpu_dec_r8(cpu, R8_H); break;
     case 0x26: cpu_ld_r8_n8(cpu, R8_H); break;
-    case 0x27: break;
+    case 0x27: cpu_daa(cpu); break;
     case 0x28: cpu_jr_cc_i8(cpu, CC_Z); break;
     case 0x29: cpu_add_hl_r16(cpu, R16_HL); break;
     case 0x2a: cpu_ld_a_hli(cpu); break;

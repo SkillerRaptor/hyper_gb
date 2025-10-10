@@ -352,7 +352,7 @@ void cpu_add_hl_r16(struct Cpu *cpu, const enum Register16 src)
 void cpu_dec_r16(struct Cpu *cpu, const enum Register16 dst)
 {
     const u16 value = cpu_get_register16(cpu, dst);
-    const u32 result = value - 1;
+    const u16 result = value - 1;
 
     cpu_set_register16(cpu, dst, result);
 }
@@ -360,7 +360,7 @@ void cpu_dec_r16(struct Cpu *cpu, const enum Register16 dst)
 void cpu_inc_r16(struct Cpu *cpu, const enum Register16 dst)
 {
     const u16 value = cpu_get_register16(cpu, dst);
-    const u32 result = value + 1;
+    const u16 result = value + 1;
 
     cpu_set_register16(cpu, dst, result);
 }
@@ -495,6 +495,8 @@ void cpu_bit_u3_hl(struct Cpu *cpu, const u8 bit)
 
 static u8 cpu_res_u3(struct Cpu *cpu, const u8 bit, const u8 value)
 {
+    (void) cpu;
+
     const u8 result = CLEAR_BIT(value, bit);
     return result;
 }
@@ -515,6 +517,8 @@ void cpu_res_u3_hl(struct Cpu *cpu, const u8 bit)
 
 static u8 cpu_set_u3(struct Cpu *cpu, const u8 bit, const u8 value)
 {
+    (void) cpu;
+
     const u8 result = SET_BIT(value, bit);
     return result;
 }
@@ -960,5 +964,53 @@ void cpu_ei(struct Cpu *cpu) { cpu->ime_delay = 2; }
 
 void cpu_halt(struct Cpu *cpu)
 {
+    (void) cpu;
+    // FIXME: Implement me
+}
+
+// Miscellaneous instructions
+
+/// DAA
+void cpu_daa(struct Cpu *cpu)
+{
+    u8 value = cpu->registers.a;
+    u16 correction = cpu_is_flag(cpu, FLAG_C) ? 0x60 : 0x00;
+    if (cpu_is_flag(cpu, FLAG_H) || (!cpu_is_flag(cpu, FLAG_N) && ((value & 0x0f) > 9)))
+    {
+        correction |= 0x06;
+    }
+
+    if (cpu_is_flag(cpu, FLAG_C) || (!cpu_is_flag(cpu, FLAG_N) && (value > 0x99)))
+    {
+        correction |= 0x60;
+    }
+
+    if (cpu_is_flag(cpu, FLAG_N))
+    {
+        value = (u8) (value - correction);
+    }
+    else
+    {
+        value = (u8) (value + correction);
+    }
+
+    cpu_set_flag(cpu, FLAG_Z, value == 0);
+    cpu_set_flag(cpu, FLAG_H, false);
+
+    if (((correction << 2) & 0x0100) != 0)
+    {
+        cpu_set_flag(cpu, FLAG_C, true);
+    }
+
+    cpu->registers.a = value;
+}
+
+/// NOP
+void cpu_nop(struct Cpu *cpu) { (void) cpu; }
+
+/// STOP
+void cpu_stop(struct Cpu *cpu)
+{
+    (void) cpu;
     // FIXME: Implement me
 }
