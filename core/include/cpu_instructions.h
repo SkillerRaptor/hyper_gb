@@ -334,6 +334,17 @@ void cpu_push_af(struct Cpu *);
 /// PUSH r16
 void cpu_push_r16(struct Cpu *, enum Register16 src);
 
+// Interrupt-related instructions
+
+/// DI
+void cpu_di(struct Cpu *);
+
+/// EI
+void cpu_ei(struct Cpu *);
+
+/// HALT
+void cpu_halt(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif

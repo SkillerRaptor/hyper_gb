@@ -859,8 +859,8 @@ void cpu_ret(struct Cpu *cpu)
 
 void cpu_reti(struct Cpu *cpu)
 {
+    cpu->ime_delay = 1;
     cpu_ret(cpu);
-    // FIXME: Enable interrupts
 }
 
 void cpu_rst_vec(struct Cpu *cpu, const enum Rst vec)
@@ -951,3 +951,14 @@ void cpu_pop_r16(struct Cpu *cpu, const enum Register16 dst) { cpu_set_register1
 void cpu_push_af(struct Cpu *cpu) { cpu_push_stack(cpu, cpu->registers.af & 0xfff0); }
 
 void cpu_push_r16(struct Cpu *cpu, const enum Register16 src) { cpu_push_stack(cpu, cpu_get_register16(cpu, src)); }
+
+// Interrupt-related instructions
+
+void cpu_di(struct Cpu *cpu) { cpu->ime = false; }
+
+void cpu_ei(struct Cpu *cpu) { cpu->ime_delay = 2; }
+
+void cpu_halt(struct Cpu *cpu)
+{
+    // FIXME: Implement me
+}

@@ -136,7 +136,9 @@ struct Cpu
     struct Mmu *mmu;
 
     struct Registers registers;
+
     bool ime;
+    u8 ime_delay;
 };
 
 struct Cpu *cpu_create(struct Mmu *);

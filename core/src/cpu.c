@@ -34,6 +34,9 @@ struct Cpu *cpu_create(struct Mmu *mmu)
     cpu->registers.pc = 0x0100;
     cpu->registers.sp = 0xfffe;
 
+    cpu->ime = false;
+    cpu->ime_delay = 0;
+
     return cpu;
 }
 
@@ -570,7 +573,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x73: cpu_ld_hl_r8(cpu, R8_E); break;
     case 0x74: cpu_ld_hl_r8(cpu, R8_H); break;
     case 0x75: cpu_ld_hl_r8(cpu, R8_L); break;
-    case 0x76: break;
+    case 0x76: cpu_halt(cpu); break;
     case 0x77: cpu_ld_hl_r8(cpu, R8_A); break;
     case 0x78: cpu_ld_r8_r8(cpu, R8_A, R8_B); break;
     case 0x79: cpu_ld_r8_r8(cpu, R8_A, R8_C); break;
@@ -703,7 +706,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xf0: cpu_ldh_a_n8(cpu); break;
     case 0xf1: cpu_pop_af(cpu); break;
     case 0xf2: cpu_ldh_a_c(cpu); break;
-    case 0xf3: break;
+    case 0xf3: cpu_di(cpu); break;
     // case 0xf4:
     case 0xf5: cpu_push_af(cpu); break;
     case 0xf6: cpu_or_a_n8(cpu); break;
@@ -711,7 +714,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0xf8: cpu_ld_hl_sp_i8(cpu); break;
     case 0xf9: cpu_ld_sp_hl(cpu); break;
     case 0xfa: cpu_ld_a_n16(cpu); break;
-    case 0xfb: break;
+    case 0xfb: cpu_ei(cpu); break;
     // case 0xfc:
     // case 0xfd:
     case 0xfe: cpu_cp_a_n8(cpu); break;
@@ -721,4 +724,16 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     }
 }
 
-void cpu_tick(struct Cpu *cpu) { cpu_execute_opcode(cpu); }
+void cpu_tick(struct Cpu *cpu)
+{
+    if (cpu->ime_delay > 0)
+    {
+        cpu->ime_delay -= 1;
+        if (cpu->ime_delay == 0)
+        {
+            cpu->ime = true;
+        }
+    }
+
+    cpu_execute_opcode(cpu);
+}
