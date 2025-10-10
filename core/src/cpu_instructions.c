@@ -958,7 +958,7 @@ void cpu_push_r16(struct Cpu *cpu, const enum Register16 src) { cpu_push_stack(c
 
 // Interrupt-related instructions
 
-void cpu_di(struct Cpu *cpu) { cpu->ime = false; }
+void cpu_di(struct Cpu *cpu) { cpu->interrupt_master_enable = false; }
 
 void cpu_ei(struct Cpu *cpu) { cpu->ime_delay = 2; }
 

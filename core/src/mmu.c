@@ -6,14 +6,19 @@
 
 #include "mmu.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "cartridge.h"
+#include "cpu.h"
 
 struct Mmu *mmu_create(struct Cartridge *cartridge)
 {
     struct Mmu *mmu = malloc(sizeof(struct Mmu));
     mmu->cartridge = cartridge;
+    mmu->wram = malloc(sizeof(u8) * 0x2000);
+    mmu->io = malloc(sizeof(u8) * 0x80);
+    mmu->hram = malloc(sizeof(u8) * 0x7f);
     mmu->test_memory = NULL;
 
     if (mmu->cartridge == NULL)
@@ -30,7 +35,54 @@ void mmu_destroy(struct Mmu *mmu)
     {
         free(mmu->test_memory);
     }
+
+    free(mmu->hram);
+    free(mmu->io);
+    free(mmu->wram);
     free(mmu);
+}
+
+// FIXME: Implement mappers
+
+// Start    End     Description	                    Notes
+// 0000     3FFF	16 KiB ROM bank 00	            From cartridge, usually a fixed bank
+// 4000     7FFF	16 KiB ROM Bank 01–NN	        From cartridge, switchable bank via mapper (if any)
+// 8000     9FFF	8 KiB Video RAM (VRAM)	        In CGB mode, switchable bank 0/1
+// A000     BFFF	8 KiB External RAM	            From cartridge, switchable bank if any
+// C000     CFFF	4 KiB Work RAM (WRAM)
+// D000     DFFF	4 KiB Work RAM (WRAM)	        In CGB mode, switchable bank 1–7
+// E000     FDFF	Echo RAM (mirror of C000–DDFF)	Nintendo says use of this area is prohibited.
+// FE00     FE9F	Object attribute memory (OAM)
+// FEA0     FEFF	Not Usable	                    Nintendo says use of this area is prohibited.
+// FF00     FF7F	I/O Registers
+// FF80     FFFE	High RAM (HRAM)
+// FFFF     FFFF	Interrupt Enable register (IE)
+
+static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
+{
+    switch (address)
+    {
+    case 0xff00: mmu->io[address - 0xff00] = value; break; // Joypad
+    case 0xff01:
+    case 0xff02: mmu->io[address - 0xff00] = value; break; // Serial Transfer
+    case 0xff0f: mmu->cpu->interrupt_flag = value; break;
+    case 0xff40:
+    case 0xff41:
+    case 0xff42:
+    case 0xff43:
+    case 0xff44:
+    case 0xff45:
+    case 0xff46:
+    case 0xff47:
+    case 0xff48:
+    case 0xff49:
+    case 0xff4a:
+    case 0xff4b: mmu->io[address - 0xff00] = value; break; // LCD
+    default:
+        mmu->io[address - 0xff00] = value;
+        printf("Unhandled write to IO at 0x%04x with 0x%02x\n", address, value);
+        break;
+    }
 }
 
 void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
@@ -45,6 +97,56 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
     {
         return;
     }
+
+    if (address >= 0xc000 && address <= 0xdfff)
+    {
+        mmu->wram[address - 0xc000] = value;
+        return;
+    }
+
+    if (address >= 0xff00 && address <= 0xff7f)
+    {
+        mmu_write_io(mmu, address, value);
+        return;
+    }
+
+    if (address >= 0xff80 && address <= 0xfffe)
+    {
+        mmu->hram[address - 0xff80] = value;
+        return;
+    }
+
+    if (address == 0xffff)
+    {
+        mmu->cpu->interrupt_enable = value;
+        return;
+    }
+
+    printf("Unhandled write at 0x%04x with 0x%02x\n", address, value);
+}
+
+static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
+{
+    switch (address)
+    {
+    case 0xff00: return mmu->io[address - 0xff00]; // Joypad
+    case 0xff01:
+    case 0xff02: return mmu->io[address - 0xff00]; // Serial Transfer
+    case 0xff0f: return mmu->cpu->interrupt_flag;
+    case 0xff40:
+    case 0xff41:
+    case 0xff42:
+    case 0xff43:
+    case 0xff44:
+    case 0xff45:
+    case 0xff46:
+    case 0xff47:
+    case 0xff48:
+    case 0xff49:
+    case 0xff4a:
+    case 0xff4b: return mmu->io[address - 0xff00]; // LCD
+    default: printf("Unhandled read to IO at 0x%04x\n", address); return mmu->io[address - 0xff00];
+    }
 }
 
 u8 mmu_read(struct Mmu *mmu, const u16 address)
@@ -58,6 +160,28 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
     {
         return mmu->cartridge->rom[address];
     }
+
+    if (address >= 0xc000 && address <= 0xdfff)
+    {
+        return mmu->wram[address - 0xc000];
+    }
+
+    if (address >= 0xff00 && address <= 0xff7f)
+    {
+        return mmu_read_io(mmu, address);
+    }
+
+    if (address >= 0xff80 && address <= 0xfffe)
+    {
+        return mmu->hram[address - 0xff80];
+    }
+
+    if (address == 0xffff)
+    {
+        return mmu->cpu->interrupt_enable;
+    }
+
+    printf("Unhandled read at 0x%04x\n", address);
 
     return 0;
 }

@@ -86,7 +86,7 @@ void execute_test(const std::string &test_file)
         cpu->registers.l = test.initial.l;
         cpu->registers.pc = test.initial.pc;
         cpu->registers.sp = test.initial.sp;
-        cpu->ime = test.initial.ime;
+        cpu->interrupt_master_enable = test.initial.ime;
 
         for (const auto &[address, value] : test.initial.ram)
         {
@@ -114,7 +114,7 @@ void execute_test(const std::string &test_file)
         REQUIRE(cpu->registers.l == test.final.l);
         REQUIRE(cpu->registers.pc == test.final.pc);
         REQUIRE(cpu->registers.sp == test.final.sp);
-        REQUIRE(cpu->ime == test.final.ime);
+        REQUIRE(cpu->interrupt_master_enable == test.final.ime);
 
         for (const auto &[address, value] : test.final.ram)
         {

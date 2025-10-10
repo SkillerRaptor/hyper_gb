@@ -137,8 +137,11 @@ struct Cpu
 
     struct Registers registers;
 
-    bool ime;
+    bool interrupt_master_enable; // IME flag
     u8 ime_delay;
+
+    u8 interrupt_enable; // IE
+    u8 interrupt_flag; // IF
 };
 
 struct Cpu *cpu_create(struct Mmu *);

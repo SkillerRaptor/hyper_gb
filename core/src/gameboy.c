@@ -6,8 +6,6 @@
 
 #include "gameboy.h"
 
-#include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "cartridge.h"
@@ -19,8 +17,11 @@ struct Gameboy *gameboy_create(const char *rom)
     struct Gameboy *gameboy = malloc(sizeof(struct Gameboy));
 
     gameboy->cartridge = cartridge_create(rom);
-    gameboy->mmu = mmu_create(gameboy->cartridge);
+    gameboy->mmu = mmu_create();
     gameboy->cpu = cpu_create(gameboy->mmu);
+
+    gameboy->mmu->cartridge = gameboy->cartridge;
+    gameboy->mmu->cpu = gameboy->cpu;
 
     return gameboy;
 }

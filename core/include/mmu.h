@@ -14,16 +14,22 @@ extern "C"
 #include "types.h"
 
 struct Cartridge;
+struct Cpu;
 
 struct Mmu
 {
     struct Cartridge *cartridge;
+    struct Cpu *cpu;
+
+    u8 *wram;
+    u8 *io; // Temporary
+    u8 *hram;
 
     // Tests Only
     u8 *test_memory;
 };
 
-struct Mmu *mmu_create(struct Cartridge *);
+struct Mmu *mmu_create();
 void mmu_destroy(struct Mmu *);
 
 void mmu_write(struct Mmu *, u16 address, u8 value);

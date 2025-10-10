@@ -34,8 +34,11 @@ struct Cpu *cpu_create(struct Mmu *mmu)
     cpu->registers.pc = 0x0100;
     cpu->registers.sp = 0xfffe;
 
-    cpu->ime = false;
+    cpu->interrupt_master_enable = false;
     cpu->ime_delay = 0;
+
+    cpu->interrupt_enable = 0;
+    cpu->interrupt_flag = 0;
 
     return cpu;
 }
@@ -731,7 +734,7 @@ void cpu_tick(struct Cpu *cpu)
         cpu->ime_delay -= 1;
         if (cpu->ime_delay == 0)
         {
-            cpu->ime = true;
+            cpu->interrupt_master_enable = true;
         }
     }
 
