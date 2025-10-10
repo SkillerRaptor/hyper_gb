@@ -465,3 +465,70 @@ void cpu_xor_a_n8(struct Cpu *cpu)
     const u8 value = cpu_fetch_u8(cpu);
     cpu_xor_a(cpu, value);
 }
+
+// Bit flag instructions
+
+#define CHECK_BIT(value, bit) ((value & (1 << (bit))) != 0)
+#define SET_BIT(value, bit) (value | (1 << (bit)))
+#define CLEAR_BIT(value, bit) (value & ~(1 << (bit)))
+
+static void cpu_bit_u3(struct Cpu *cpu, const u8 bit, const u8 value)
+{
+    const bool is_zero = !CHECK_BIT(value, bit);
+
+    cpu_set_flag(cpu, FLAG_Z, is_zero);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, true);
+}
+
+void cpu_bit_u3_r8(struct Cpu *cpu, const u8 bit, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_bit_u3(cpu, bit, value);
+}
+
+void cpu_bit_u3_hl(struct Cpu *cpu, const u8 bit)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_bit_u3(cpu, bit, value);
+}
+
+static u8 cpu_res_u3(struct Cpu *cpu, const u8 bit, const u8 value)
+{
+    const u8 result = CLEAR_BIT(value, bit);
+    return result;
+}
+
+void cpu_res_u3_r8(struct Cpu *cpu, const u8 bit, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_res_u3(cpu, bit, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_res_u3_hl(struct Cpu *cpu, const u8 bit)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_res_u3(cpu, bit, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}
+
+static u8 cpu_set_u3(struct Cpu *cpu, const u8 bit, const u8 value)
+{
+    const u8 result = SET_BIT(value, bit);
+    return result;
+}
+
+void cpu_set_u3_r8(struct Cpu *cpu, const u8 bit, const enum Register8 dst)
+{
+    const u8 value = cpu_get_register8(cpu, dst);
+    const u8 result = cpu_set_u3(cpu, bit, value);
+    cpu_set_register8(cpu, dst, result);
+}
+
+void cpu_set_u3_hl(struct Cpu *cpu, const u8 bit)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    const u8 result = cpu_set_u3(cpu, bit, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
+}

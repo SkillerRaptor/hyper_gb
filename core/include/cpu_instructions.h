@@ -171,6 +171,26 @@ void cpu_xor_a_hl(struct Cpu *);
 /// XOR A,n8
 void cpu_xor_a_n8(struct Cpu *);
 
+// Bit flag instructions
+
+/// BIT u3,r8
+void cpu_bit_u3_r8(struct Cpu *, u8 bit, enum Register8 src);
+
+/// BIT u3,[HL]
+void cpu_bit_u3_hl(struct Cpu *, u8 bit);
+
+/// RES u3,r8
+void cpu_res_u3_r8(struct Cpu *, u8 bit, enum Register8 dst);
+
+/// RES u3,[HL]
+void cpu_res_u3_hl(struct Cpu *, u8 bit);
+
+/// SET u3,r8
+void cpu_set_u3_r8(struct Cpu *, u8 bit, enum Register8 dst);
+
+/// SET u3,[HL]
+void cpu_set_u3_hl(struct Cpu *, u8 bit);
+
 #ifdef __cplusplus
 }
 #endif
