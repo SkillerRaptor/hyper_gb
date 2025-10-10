@@ -883,3 +883,71 @@ void cpu_scf(struct Cpu *cpu)
     cpu_set_flag(cpu, FLAG_H, false);
     cpu_set_flag(cpu, FLAG_C, true);
 }
+
+// Stack manipulation instructions
+void cpu_add_hl_sp(struct Cpu *cpu)
+{
+    const u16 value = cpu->registers.sp;
+    const u32 result_full = cpu->registers.hl + value;
+    const u16 result = (u16) result_full;
+
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.hl & 0x0fff) + (value & 0x0fff)) > 0x0fff);
+    cpu_set_flag(cpu, FLAG_C, (result_full & 0x10000) != 0);
+
+    cpu->registers.hl = result;
+}
+
+void cpu_add_sp_i8(struct Cpu *cpu)
+{
+    const i8 value = cpu_fetch_i8(cpu);
+    const i32 result = cpu->registers.sp + value;
+
+    cpu_set_flag(cpu, FLAG_Z, false);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.sp ^ value ^ (result & 0xffff)) & 0x0010) == 0x0010);
+    cpu_set_flag(cpu, FLAG_C, ((cpu->registers.sp ^ value ^ (result & 0xffff)) & 0x0100) == 0x0100);
+
+    cpu->registers.sp = (u16) result;
+}
+
+void cpu_dec_sp(struct Cpu *cpu) { cpu->registers.sp -= 1; }
+
+void cpu_inc_sp(struct Cpu *cpu) { cpu->registers.sp += 1; }
+
+void cpu_ld_sp_n16(struct Cpu *cpu)
+{
+    const u16 value = cpu_fetch_u16(cpu);
+    cpu->registers.sp = value;
+}
+
+void cpu_ld_n16_sp(struct Cpu *cpu)
+{
+    const u16 address = cpu_fetch_u16(cpu);
+
+    mmu_write(cpu->mmu, address, cpu->registers.sp & 0xff);
+    mmu_write(cpu->mmu, address + 1, cpu->registers.sp >> 8);
+}
+
+void cpu_ld_hl_sp_i8(struct Cpu *cpu)
+{
+    const i8 value = cpu_fetch_i8(cpu);
+    const i32 result = cpu->registers.sp + value;
+
+    cpu_set_flag(cpu, FLAG_Z, false);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, ((cpu->registers.sp ^ value ^ (result & 0xffff)) & 0x0010) == 0x0010);
+    cpu_set_flag(cpu, FLAG_C, ((cpu->registers.sp ^ value ^ (result & 0xffff)) & 0x0100) == 0x0100);
+
+    cpu->registers.hl = (u16) result;
+}
+
+void cpu_ld_sp_hl(struct Cpu *cpu) { cpu->registers.sp = cpu->registers.hl; }
+
+void cpu_pop_af(struct Cpu *cpu) { cpu->registers.af = cpu_pop_stack(cpu) & 0xfff0; }
+
+void cpu_pop_r16(struct Cpu *cpu, const enum Register16 dst) { cpu_set_register16(cpu, dst, cpu_pop_stack(cpu)); }
+
+void cpu_push_af(struct Cpu *cpu) { cpu_push_stack(cpu, cpu->registers.af & 0xfff0); }
+
+void cpu_push_r16(struct Cpu *cpu, const enum Register16 src) { cpu_push_stack(cpu, cpu_get_register16(cpu, src)); }

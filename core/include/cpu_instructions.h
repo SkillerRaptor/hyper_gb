@@ -296,6 +296,44 @@ void cpu_ccf(struct Cpu *);
 /// SCF
 void cpu_scf(struct Cpu *);
 
+// Stack manipulation instructions
+
+/// ADD HL,SP
+void cpu_add_hl_sp(struct Cpu *);
+
+/// ADD SP,i8
+void cpu_add_sp_i8(struct Cpu *);
+
+/// DEC SP
+void cpu_dec_sp(struct Cpu *);
+
+/// INC SP
+void cpu_inc_sp(struct Cpu *);
+
+/// LD SP,n16
+void cpu_ld_sp_n16(struct Cpu *);
+
+/// LD [n16],SP
+void cpu_ld_n16_sp(struct Cpu *);
+
+/// LD HL,SP+i8
+void cpu_ld_hl_sp_i8(struct Cpu *);
+
+/// LD SP,HL
+void cpu_ld_sp_hl(struct Cpu *);
+
+/// POP AF
+void cpu_pop_af(struct Cpu *);
+
+/// POP r16
+void cpu_pop_r16(struct Cpu *, enum Register16 dst);
+
+/// PUSH AF
+void cpu_push_af(struct Cpu *);
+
+/// PUSH r16
+void cpu_push_r16(struct Cpu *, enum Register16 src);
+
 #ifdef __cplusplus
 }
 #endif
