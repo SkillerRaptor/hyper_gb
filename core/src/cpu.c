@@ -503,7 +503,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x34: cpu_inc_hl(cpu); break;
     case 0x35: cpu_dec_hl(cpu); break;
     case 0x36: cpu_ld_hl_n8(cpu); break;
-    case 0x37: break;
+    case 0x37: cpu_scf(cpu); break;
     case 0x38: cpu_jr_cc_i8(cpu, CC_C); break;
     case 0x39: break;
     case 0x3a: cpu_ld_a_hld(cpu); break;
@@ -511,7 +511,7 @@ static void cpu_execute_opcode(struct Cpu *cpu)
     case 0x3c: cpu_inc_r8(cpu, R8_A); break;
     case 0x3d: cpu_dec_r8(cpu, R8_A); break;
     case 0x3e: cpu_ld_r8_n8(cpu, R8_A); break;
-    case 0x3f: break;
+    case 0x3f: cpu_ccf(cpu); break;
 
     case 0x40: cpu_ld_r8_r8(cpu, R8_B, R8_B); break;
     case 0x41: cpu_ld_r8_r8(cpu, R8_B, R8_C); break;

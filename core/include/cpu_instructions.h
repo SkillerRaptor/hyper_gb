@@ -288,6 +288,14 @@ void cpu_reti(struct Cpu *);
 /// RST vec
 void cpu_rst_vec(struct Cpu *, enum Rst vec);
 
+// Carry flag instructions
+
+/// CCF
+void cpu_ccf(struct Cpu *);
+
+/// SCF
+void cpu_scf(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif

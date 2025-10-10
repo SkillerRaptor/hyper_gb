@@ -868,3 +868,18 @@ void cpu_rst_vec(struct Cpu *cpu, const enum Rst vec)
     cpu_push_stack(cpu, cpu->registers.pc);
     cpu->registers.pc = (u16) vec;
 }
+
+// Carry flag instructions
+void cpu_ccf(struct Cpu *cpu)
+{
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, !cpu_is_flag(cpu, FLAG_C));
+}
+
+void cpu_scf(struct Cpu *cpu)
+{
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, true);
+}
