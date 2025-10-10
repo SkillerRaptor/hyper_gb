@@ -139,6 +139,38 @@ void cpu_dec_r16(struct Cpu *, enum Register16 dst);
 /// INC r16
 void cpu_inc_r16(struct Cpu *, enum Register16 dst);
 
+// Bitwise logic instructions
+
+/// AND A,r8
+void cpu_and_a_r8(struct Cpu *, enum Register8 src);
+
+/// AND A,[HL]
+void cpu_and_a_hl(struct Cpu *);
+
+/// AND A,n8
+void cpu_and_a_n8(struct Cpu *);
+
+/// CPL
+void cpu_cpl(struct Cpu *);
+
+/// OR A,r8
+void cpu_or_a_r8(struct Cpu *, enum Register8 src);
+
+/// OR A,[HL]
+void cpu_or_a_hl(struct Cpu *);
+
+/// OR A,n8
+void cpu_or_a_n8(struct Cpu *);
+
+/// XOR A,r8
+void cpu_xor_a_r8(struct Cpu *, enum Register8 src);
+
+/// XOR A,[HL]
+void cpu_xor_a_hl(struct Cpu *);
+
+/// XOR A,n8
+void cpu_xor_a_n8(struct Cpu *);
+
 #ifdef __cplusplus
 }
 #endif

@@ -364,3 +364,104 @@ void cpu_inc_r16(struct Cpu *cpu, const enum Register16 dst)
 
     cpu_set_register16(cpu, dst, result);
 }
+
+// Bitwise logic instructions
+static void cpu_and_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = cpu->registers.a & value;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, true);
+    cpu_set_flag(cpu, FLAG_C, false);
+
+    cpu->registers.a = result;
+}
+
+void cpu_and_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_and_a(cpu, value);
+}
+
+void cpu_and_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_and_a(cpu, value);
+}
+
+void cpu_and_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_and_a(cpu, value);
+}
+
+void cpu_cpl(struct Cpu *cpu)
+{
+    const u8 result = ~cpu->registers.a;
+
+    cpu_set_flag(cpu, FLAG_N, true);
+    cpu_set_flag(cpu, FLAG_H, true);
+
+    cpu->registers.a = result;
+}
+
+static void cpu_or_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = cpu->registers.a | value;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, false);
+
+    cpu->registers.a = result;
+}
+
+void cpu_or_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_or_a(cpu, value);
+}
+
+void cpu_or_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_or_a(cpu, value);
+}
+
+void cpu_or_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_or_a(cpu, value);
+}
+
+static void cpu_xor_a(struct Cpu *cpu, const u8 value)
+{
+    const u8 result = cpu->registers.a ^ value;
+
+    cpu_set_flag(cpu, FLAG_Z, result == 0);
+    cpu_set_flag(cpu, FLAG_N, false);
+    cpu_set_flag(cpu, FLAG_H, false);
+    cpu_set_flag(cpu, FLAG_C, false);
+
+    cpu->registers.a = result;
+}
+
+void cpu_xor_a_r8(struct Cpu *cpu, const enum Register8 src)
+{
+    const u8 value = cpu_get_register8(cpu, src);
+    cpu_xor_a(cpu, value);
+}
+
+void cpu_xor_a_hl(struct Cpu *cpu)
+{
+    const u8 value = mmu_read(cpu->mmu, cpu->registers.hl);
+    cpu_xor_a(cpu, value);
+}
+
+void cpu_xor_a_n8(struct Cpu *cpu)
+{
+    const u8 value = cpu_fetch_u8(cpu);
+    cpu_xor_a(cpu, value);
+}
