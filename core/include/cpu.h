@@ -6,17 +6,17 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stdbool.h>
 
 #include "prerequisites.h"
 #include "types.h"
 
-struct Mmu;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+struct Gameboy;
 
 struct Registers
 {
@@ -133,7 +133,7 @@ enum Rst
 
 struct Cpu
 {
-    struct Mmu *mmu;
+    struct Gameboy *gb;
 
     struct Registers registers;
 
@@ -144,7 +144,7 @@ struct Cpu
     u8 interrupt_flag; // IF
 };
 
-struct Cpu *cpu_create(struct Mmu *);
+struct Cpu *cpu_create(struct Gameboy *);
 void cpu_destroy(struct Cpu *);
 
 void cpu_set_register8(struct Cpu *, enum Register8, u8);

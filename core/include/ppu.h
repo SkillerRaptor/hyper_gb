@@ -6,15 +6,19 @@
 
 #pragma once
 
+#include "types.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "types.h"
+struct Gameboy;
 
 struct Ppu
 {
+    struct Gameboy *gb;
+
     u8 lcd_control; // 0xff40 - LCD control
     u8 lcd_status; // 0xff41 - LCD status
 
@@ -34,8 +38,8 @@ struct Ppu
     u8 *vram;
 };
 
-struct Ppu *ppu_create();
-void ppu_destroy(struct Ppu *ppu);
+struct Ppu *ppu_create(struct Gameboy *);
+void ppu_destroy(struct Ppu *);
 
 #ifdef __cplusplus
 }

@@ -23,27 +23,24 @@ set(HEADERS
         include/prerequisites.h
         include/types.h)
 
-foreach (item IN ITEMS ${SOURCES})
-    get_filename_component(src_path "${item}" PATH)
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" group_path "${src_path}")
-    string(REPLACE ".." "\\" group_path "${group_path}")
-    source_group("${group_path}" FILES "${item}")
-endforeach ()
+add_library(core STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(core PRIVATE ProjectWarnings)
+target_include_directories(core PUBLIC include)
 
-foreach (item IN ITEMS ${HEADERS})
-    get_filename_component(src_path "${item}" PATH)
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" group_path "${src_path}")
-    string(REPLACE ".." "\\" group_path "${group_path}")
-    source_group("${group_path}" FILES "${item}")
-endforeach ()
-
-add_library(hyper_gb_core STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(hyper_gb_core PRIVATE ProjectOptions ProjectWarnings)
-target_include_directories(hyper_gb_core PUBLIC include)
+add_library(test_core STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(test_core PRIVATE ProjectWarnings)
+target_compile_definitions(test_core PRIVATE -DTESTS_ENABLED)
+target_include_directories(test_core PUBLIC include)
 
 if (WIN32)
     target_compile_definitions(
-            hyper_gb_core
+            core
+            PRIVATE
+            _CRT_SECURE_NO_WARNINGS
+            NOMINMAX
+            WIN32_LEAN_AND_MEAN)
+    target_compile_definitions(
+            test_core
             PRIVATE
             _CRT_SECURE_NO_WARNINGS
             NOMINMAX

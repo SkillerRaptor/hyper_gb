@@ -6,12 +6,12 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include <stdint.h>
 
 typedef int8_t i8;
 typedef int16_t i16;

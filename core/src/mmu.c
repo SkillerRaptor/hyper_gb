@@ -6,94 +6,51 @@
 
 #include "mmu.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "cartridge.h"
 #include "cpu.h"
+#include "gameboy.h"
+#include "logger.h"
 #include "ppu.h"
 
-struct Mmu *mmu_create(struct Cartridge *cartridge)
+static void mmu_write_io(struct Mmu *mmu, u16 address, u8 value);
+static u8 mmu_read_io(struct Mmu *mmu, u16 address);
+
+struct Mmu *mmu_create(struct Gameboy *gb)
 {
     struct Mmu *mmu = malloc(sizeof(struct Mmu));
-    mmu->cartridge = cartridge;
+    mmu->gb = gb;
+
+#if TESTS_ENABLED
+    mmu->memory = malloc(sizeof(u8) * 0x10000);
+#else
     mmu->wram = malloc(sizeof(u8) * 0x2000);
     mmu->io = malloc(sizeof(u8) * 0x80);
     mmu->hram = malloc(sizeof(u8) * 0x7f);
-    mmu->test_memory = NULL;
-
-    if (mmu->cartridge == NULL)
-    {
-        mmu->test_memory = malloc(sizeof(u8) * 0x10000);
-    }
+#endif
 
     return mmu;
 }
 
 void mmu_destroy(struct Mmu *mmu)
 {
-    if (mmu->test_memory)
-    {
-        free(mmu->test_memory);
-    }
-
+#if TESTS_ENABLED
+    free(mmu->memory);
+#else
     free(mmu->hram);
     free(mmu->io);
     free(mmu->wram);
+#endif
+
     free(mmu);
-}
-
-// FIXME: Implement mappers
-
-// Start    End     Description	                    Notes
-// 0000     3FFF	16 KiB ROM bank 00	            From cartridge, usually a fixed bank
-// 4000     7FFF	16 KiB ROM Bank 01–NN	        From cartridge, switchable bank via mapper (if any)
-// 8000     9FFF	8 KiB Video RAM (VRAM)	        In CGB mode, switchable bank 0/1
-// A000     BFFF	8 KiB External RAM	            From cartridge, switchable bank if any
-// C000     CFFF	4 KiB Work RAM (WRAM)
-// D000     DFFF	4 KiB Work RAM (WRAM)	        In CGB mode, switchable bank 1–7
-// E000     FDFF	Echo RAM (mirror of C000–DDFF)	Nintendo says use of this area is prohibited.
-// FE00     FE9F	Object attribute memory (OAM)
-// FEA0     FEFF	Not Usable	                    Nintendo says use of this area is prohibited.
-// FF00     FF7F	I/O Registers
-// FF80     FFFE	High RAM (HRAM)
-// FFFF     FFFF	Interrupt Enable register (IE)
-
-static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
-{
-    switch (address)
-    {
-    case 0xff00: mmu->io[address - 0xff00] = value; break; // Joypad
-    case 0xff01:
-    case 0xff02: mmu->io[address - 0xff00] = value; break; // Serial Transfer
-    case 0xff0f: mmu->cpu->interrupt_flag = value; break;
-    case 0xff40: mmu->ppu->lcd_control = value; break;
-    case 0xff41: mmu->ppu->lcd_status = value; break;
-    case 0xff42: mmu->ppu->scy = value; break;
-    case 0xff43: mmu->ppu->scx = value; break;
-    case 0xff44: mmu->ppu->ly = 0x00; break; // Write will cause to reset
-    case 0xff45: mmu->ppu->lyc = value; break;
-    case 0xff46: printf("Implement DMA transfer"); break;
-    case 0xff47: mmu->ppu->bgp = value; break;
-    case 0xff48: mmu->ppu->obp0 = value; break;
-    case 0xff49: mmu->ppu->obp1 = value; break;
-    case 0xff4a: mmu->ppu->wy = value; break;
-    case 0xff4b: mmu->ppu->wx = value; break;
-    default:
-        mmu->io[address - 0xff00] = value;
-        printf("Unhandled write to IO at 0x%04x with 0x%02x\n", address, value);
-        break;
-    }
 }
 
 void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
 {
-    if (mmu->test_memory)
-    {
-        mmu->test_memory[address] = value;
-        return;
-    }
-
+#if TESTS_ENABLED
+    mmu->memory[address] = value;
+#else
     if (address <= 0x7fff)
     {
         return;
@@ -101,7 +58,7 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        mmu->ppu->vram[address - 0x8000] = value;
+        mmu->gb->ppu->vram[address - 0x8000] = value;
         return;
     }
 
@@ -125,52 +82,27 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
 
     if (address == 0xffff)
     {
-        mmu->cpu->interrupt_enable = value;
+        mmu->gb->cpu->interrupt_enable = value;
         return;
     }
 
-    printf("Unhandled write at 0x%04x with 0x%02x\n", address, value);
-}
-
-static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
-{
-    switch (address)
-    {
-    case 0xff00: return mmu->io[address - 0xff00]; // Joypad
-    case 0xff01:
-    case 0xff02: return mmu->io[address - 0xff00]; // Serial Transfer
-    case 0xff0f: return mmu->cpu->interrupt_flag;
-    case 0xff40: return mmu->ppu->lcd_control;
-    case 0xff41: return mmu->ppu->lcd_status;
-    case 0xff42: return mmu->ppu->scy;
-    case 0xff43: return mmu->ppu->scx;
-    case 0xff44: printf("0x%02x\n", mmu->ppu->ly); return mmu->ppu->ly;
-    case 0xff45: return mmu->ppu->lyc;
-    case 0xff46: printf("Attempted to read from write-only DMA\n"); return 0xff;
-    case 0xff47: return mmu->ppu->bgp;
-    case 0xff48: return mmu->ppu->obp0;
-    case 0xff49: return mmu->ppu->obp1;
-    case 0xff4a: return mmu->ppu->wy;
-    case 0xff4b: return mmu->ppu->wx;
-    default: printf("Unhandled read to IO at 0x%04x\n", address); return mmu->io[address - 0xff00];
-    }
+    logger_warn("Unhandled write at 0x%04x with 0x%02x", address, value);
+#endif
 }
 
 u8 mmu_read(struct Mmu *mmu, const u16 address)
 {
-    if (mmu->test_memory)
-    {
-        return mmu->test_memory[address];
-    }
-
+#if TESTS_ENABLED
+    return mmu->memory[address];
+#else
     if (address <= 0x7fff)
     {
-        return mmu->cartridge->rom[address];
+        return mmu->gb->cartridge->data[address];
     }
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        return mmu->ppu->vram[address - 0x8000];
+        return mmu->gb->ppu->vram[address - 0x8000];
     }
 
     if (address >= 0xc000 && address <= 0xdfff)
@@ -190,10 +122,64 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
 
     if (address == 0xffff)
     {
-        return mmu->cpu->interrupt_enable;
+        return mmu->gb->cpu->interrupt_enable;
     }
 
-    printf("Unhandled read at 0x%04x\n", address);
+    logger_warn("Unhandled read at 0x%04x", address);
 
-    return 0;
+    return 0xff;
+#endif
 }
+
+#if !TESTS_ENABLED
+static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
+{
+    struct Cpu *cpu = mmu->gb->cpu;
+    struct Ppu *ppu = mmu->gb->ppu;
+
+    switch (address)
+    {
+    case 0xff0f: cpu->interrupt_flag = value; break;
+    case 0xff40: ppu->lcd_control = value; break;
+    case 0xff41: ppu->lcd_status = value; break;
+    case 0xff42: ppu->scy = value; break;
+    case 0xff43: ppu->scx = value; break;
+    case 0xff44: ppu->ly = 0x00; break; // Write will cause to reset
+    case 0xff45: ppu->lyc = value; break;
+    case 0xff46: logger_warn("Attempted to start DMA transfer"); break;
+    case 0xff47: ppu->bgp = value; break;
+    case 0xff48: ppu->obp0 = value; break;
+    case 0xff49: ppu->obp1 = value; break;
+    case 0xff4a: ppu->wy = value; break;
+    case 0xff4b: ppu->wx = value; break;
+    default:
+        mmu->io[address - 0xff00] = value;
+        logger_warn("Unhandled I/O-write at 0x%04x with 0x%02x", address, value);
+        break;
+    }
+}
+
+static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
+{
+    const struct Cpu *cpu = mmu->gb->cpu;
+    const struct Ppu *ppu = mmu->gb->ppu;
+
+    switch (address)
+    {
+    case 0xff0f: return cpu->interrupt_flag;
+    case 0xff40: return ppu->lcd_control;
+    case 0xff41: return ppu->lcd_status;
+    case 0xff42: return ppu->scy;
+    case 0xff43: return ppu->scx;
+    case 0xff44: return ppu->ly;
+    case 0xff45: return ppu->lyc;
+    case 0xff46: logger_warn("Attempted to read from write-only DMA register"); return 0xff;
+    case 0xff47: return ppu->bgp;
+    case 0xff48: return ppu->obp0;
+    case 0xff49: return ppu->obp1;
+    case 0xff4a: return ppu->wy;
+    case 0xff4b: return ppu->wx;
+    default: logger_warn("Unhandled I/O-Read at 0x%04x", address); return mmu->io[address - 0xff00];
+    }
+}
+#endif

@@ -6,12 +6,12 @@
 
 #pragma once
 
+#include "cpu.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include "cpu.h"
 
 // Load instructions
 

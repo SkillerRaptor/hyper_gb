@@ -6,32 +6,29 @@
 
 #pragma once
 
+#include "types.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "types.h"
-
-struct Cartridge;
-struct Cpu;
-struct Ppu;
+struct Gameboy;
 
 struct Mmu
 {
-    struct Cartridge *cartridge;
-    struct Cpu *cpu;
-    struct Ppu *ppu;
+    struct Gameboy *gb;
 
+#if TESTS_ENABLED
+    u8 *memory;
+#else
     u8 *wram;
-    u8 *io; // Temporary
+    u8 *io;
     u8 *hram;
-
-    // Tests Only
-    u8 *test_memory;
+#endif
 };
 
-struct Mmu *mmu_create(struct Cartridge *cartridge);
+struct Mmu *mmu_create(struct Gameboy *gb);
 void mmu_destroy(struct Mmu *);
 
 void mmu_write(struct Mmu *, u16 address, u8 value);

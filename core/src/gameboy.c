@@ -10,20 +10,21 @@
 
 #include "cartridge.h"
 #include "cpu.h"
+#include "logger.h"
 #include "mmu.h"
 #include "ppu.h"
 
 struct Gameboy *gameboy_create(const char *rom)
 {
-    struct Gameboy *gameboy = malloc(sizeof(struct Gameboy));
-
+    struct Gameboy *gameboy = calloc(1, sizeof(struct Gameboy));
     gameboy->cartridge = cartridge_create(rom);
-    gameboy->mmu = mmu_create(gameboy->cartridge);
-    gameboy->cpu = cpu_create(gameboy->mmu);
-    gameboy->ppu = ppu_create();
+    gameboy->mmu = mmu_create(gameboy);
+    gameboy->cpu = cpu_create(gameboy);
+    gameboy->ppu = ppu_create(gameboy);
 
-    gameboy->mmu->cpu = gameboy->cpu;
-    gameboy->mmu->ppu = gameboy->ppu;
+    char *cartridge_title = cartridge_get_title(gameboy->cartridge);
+    logger_info("Loaded cartridge '%s'", cartridge_title);
+    free(cartridge_title);
 
     return gameboy;
 }
@@ -34,7 +35,6 @@ void gameboy_destroy(struct Gameboy *gameboy)
     cpu_destroy(gameboy->cpu);
     mmu_destroy(gameboy->mmu);
     cartridge_destroy(gameboy->cartridge);
-
     free(gameboy);
 }
 

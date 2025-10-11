@@ -9,27 +9,42 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "logger.h"
 
 struct Cartridge *cartridge_create(const char *rom)
 {
     struct Cartridge *cartridge = malloc(sizeof(struct Cartridge));
+    cartridge->data = NULL;
 
     FILE *file = fopen(rom, "rb");
     if (file == NULL)
     {
+        logger_err("Failed to open rom file");
         free(cartridge);
         return NULL;
     }
 
     fseek(file, 0, SEEK_END);
-    const usize size = ftell(file);
+
+    const usize file_size = ftell(file);
+    if (file_size == 0)
+    {
+        logger_err("Failed to get size of rom file");
+        fclose(file);
+        free(cartridge);
+        return NULL;
+    }
+
     fseek(file, 0, SEEK_SET);
 
-    cartridge->rom = malloc(size);
-    assert(cartridge->rom != NULL);
+    cartridge->data = malloc(file_size);
 
-    if (fread(cartridge->rom, sizeof(u8), size, file) != size)
+    const usize read_size = fread(cartridge->data, sizeof(u8), file_size, file);
+    if (read_size != file_size)
     {
+        logger_err("Failed to read rom file");
         fclose(file);
         free(cartridge);
         return NULL;
@@ -42,6 +57,13 @@ struct Cartridge *cartridge_create(const char *rom)
 
 void cartridge_destroy(struct Cartridge *cartridge)
 {
-    free(cartridge->rom);
+    free(cartridge->data);
     free(cartridge);
+}
+
+char *cartridge_get_title(const struct Cartridge *cartridge)
+{
+    char *title = malloc(sizeof(char) * 0x10);
+    memcpy(title, &cartridge->data[0x0134], 0x10);
+    return title;
 }

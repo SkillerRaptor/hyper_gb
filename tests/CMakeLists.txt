@@ -9,20 +9,12 @@ set(SOURCES
 set(HEADERS
 )
 
-foreach (item IN ITEMS ${SOURCES})
-    get_filename_component(src_path "${item}" PATH)
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" group_path "${src_path}")
-    string(REPLACE ".." "\\" group_path "${group_path}")
-    source_group("${group_path}" FILES "${item}")
-endforeach ()
-
-foreach (item IN ITEMS ${HEADERS})
-    get_filename_component(src_path "${item}" PATH)
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" group_path "${src_path}")
-    string(REPLACE ".." "\\" group_path "${group_path}")
-    source_group("${group_path}" FILES "${item}")
-endforeach ()
-
-add_executable(hyper_gb_tests ${SOURCES} ${HEADERS})
-target_link_libraries(hyper_gb_tests PRIVATE ProjectOptions ProjectWarnings hyper_gb_core Catch2::Catch2WithMain nlohmann_json)
-target_include_directories(hyper_gb_tests PUBLIC include)
+add_executable(tests ${SOURCES} ${HEADERS})
+target_link_libraries(tests PRIVATE ProjectWarnings)
+target_include_directories(tests PUBLIC include)
+target_link_libraries(
+        tests
+        PRIVATE
+        test_core
+        Catch2::Catch2WithMain
+        nlohmann_json)

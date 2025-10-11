@@ -7,17 +7,16 @@
 #include "cpu.h"
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "cpu_instructions.h"
+#include "gameboy.h"
 #include "mmu.h"
-#include "ppu.h"
 
-struct Cpu *cpu_create(struct Mmu *mmu)
+struct Cpu *cpu_create(struct Gameboy *gb)
 {
     struct Cpu *cpu = malloc(sizeof(struct Cpu));
-    cpu->mmu = mmu;
+    cpu->gb = gb;
 
     cpu->registers.a = 0x01;
 
@@ -129,17 +128,17 @@ bool cpu_is_condition(struct Cpu *cpu, const enum ConditionCode cc)
 void cpu_push_stack(struct Cpu *cpu, const u16 value)
 {
     cpu->registers.sp -= 1;
-    mmu_write(cpu->mmu, cpu->registers.sp, (u8) ((value & 0xff00) >> 8));
+    mmu_write(cpu->gb->mmu, cpu->registers.sp, (u8) ((value & 0xff00) >> 8));
     cpu->registers.sp -= 1;
-    mmu_write(cpu->mmu, cpu->registers.sp, (u8) ((value & 0x00ff) >> 0));
+    mmu_write(cpu->gb->mmu, cpu->registers.sp, (u8) ((value & 0x00ff) >> 0));
 }
 
 u16 cpu_pop_stack(struct Cpu *cpu)
 {
-    const u8 lower_byte = mmu_read(cpu->mmu, cpu->registers.sp);
+    const u8 lower_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
-    const u8 higher_byte = mmu_read(cpu->mmu, cpu->registers.sp);
+    const u8 higher_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
     const u16 result = ((u16) higher_byte << 8) | (u16) lower_byte;
@@ -150,7 +149,7 @@ i8 cpu_fetch_i8(struct Cpu *cpu) { return (i8) cpu_fetch_u8(cpu); }
 
 u8 cpu_fetch_u8(struct Cpu *cpu)
 {
-    const u8 byte = mmu_read(cpu->mmu, cpu->registers.pc);
+    const u8 byte = mmu_read(cpu->gb->mmu, cpu->registers.pc);
     cpu->registers.pc += 1;
 
     return byte;

@@ -8,9 +8,10 @@
 
 #include <stdlib.h>
 
-struct Ppu *ppu_create()
+struct Ppu *ppu_create(struct Gameboy *gb)
 {
     struct Ppu *ppu = malloc(sizeof(struct Ppu));
+    ppu->gb = gb;
     ppu->lcd_control = 0;
     ppu->lcd_status = 0;
     ppu->scy = 0;

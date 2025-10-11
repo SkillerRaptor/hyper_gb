@@ -6,20 +6,22 @@
 
 #pragma once
 
+#include "types.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "types.h"
-
 struct Cartridge
 {
-    u8 *rom;
+    u8 *data;
 };
 
 struct Cartridge *cartridge_create(const char *rom);
 void cartridge_destroy(struct Cartridge *);
+
+char *cartridge_get_title(const struct Cartridge *);
 
 #ifdef __cplusplus
 }
