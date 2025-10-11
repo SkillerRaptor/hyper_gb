@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2025-present, SkillerRaptor
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#pragma once
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include "types.h"
+
+struct Ppu
+{
+    u8 lcd_control; // 0xff40 - LCD control
+    u8 lcd_status; // 0xff41 - LCD status
+
+    u8 scy; // 0xff42 - Background viewport Y
+    u8 scx; // 0xff43 - Background viewport X
+
+    u8 ly; // 0xff44 - LCD Y coordinate
+    u8 lyc; // 0xff45 - LY compare
+
+    u8 bgp; // 0xff47 - BG palette data
+    u8 obp0; // 0xff48 - OBJ palette 0 data
+    u8 obp1; // 0xff49 - OBJ palette 1 data
+
+    u8 wy; // 0xff4a - Window Y position
+    u8 wx; // 0xff4b - Window X position plus 7
+
+    u8 *vram;
+};
+
+struct Ppu *ppu_create();
+void ppu_destroy(struct Ppu *ppu);
+
+#ifdef __cplusplus
+}
+#endif

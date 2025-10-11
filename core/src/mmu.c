@@ -11,6 +11,7 @@
 
 #include "cartridge.h"
 #include "cpu.h"
+#include "ppu.h"
 
 struct Mmu *mmu_create(struct Cartridge *cartridge)
 {
@@ -66,18 +67,18 @@ static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
     case 0xff01:
     case 0xff02: mmu->io[address - 0xff00] = value; break; // Serial Transfer
     case 0xff0f: mmu->cpu->interrupt_flag = value; break;
-    case 0xff40:
-    case 0xff41:
-    case 0xff42:
-    case 0xff43:
-    case 0xff44:
-    case 0xff45:
-    case 0xff46:
-    case 0xff47:
-    case 0xff48:
-    case 0xff49:
-    case 0xff4a:
-    case 0xff4b: mmu->io[address - 0xff00] = value; break; // LCD
+    case 0xff40: mmu->ppu->lcd_control = value; break;
+    case 0xff41: mmu->ppu->lcd_status = value; break;
+    case 0xff42: mmu->ppu->scy = value; break;
+    case 0xff43: mmu->ppu->scx = value; break;
+    case 0xff44: mmu->ppu->ly = 0x00; break; // Write will cause to reset
+    case 0xff45: mmu->ppu->lyc = value; break;
+    case 0xff46: printf("Implement DMA transfer"); break;
+    case 0xff47: mmu->ppu->bgp = value; break;
+    case 0xff48: mmu->ppu->obp0 = value; break;
+    case 0xff49: mmu->ppu->obp1 = value; break;
+    case 0xff4a: mmu->ppu->wy = value; break;
+    case 0xff4b: mmu->ppu->wx = value; break;
     default:
         mmu->io[address - 0xff00] = value;
         printf("Unhandled write to IO at 0x%04x with 0x%02x\n", address, value);
@@ -95,6 +96,12 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
 
     if (address <= 0x7fff)
     {
+        return;
+    }
+
+    if (address >= 0x8000 && address <= 0x9fff)
+    {
+        mmu->ppu->vram[address - 0x8000] = value;
         return;
     }
 
@@ -133,18 +140,18 @@ static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
     case 0xff01:
     case 0xff02: return mmu->io[address - 0xff00]; // Serial Transfer
     case 0xff0f: return mmu->cpu->interrupt_flag;
-    case 0xff40:
-    case 0xff41:
-    case 0xff42:
-    case 0xff43:
-    case 0xff44:
-    case 0xff45:
-    case 0xff46:
-    case 0xff47:
-    case 0xff48:
-    case 0xff49:
-    case 0xff4a:
-    case 0xff4b: return mmu->io[address - 0xff00]; // LCD
+    case 0xff40: return mmu->ppu->lcd_control;
+    case 0xff41: return mmu->ppu->lcd_status;
+    case 0xff42: return mmu->ppu->scy;
+    case 0xff43: return mmu->ppu->scx;
+    case 0xff44: printf("0x%02x\n", mmu->ppu->ly); return mmu->ppu->ly;
+    case 0xff45: return mmu->ppu->lyc;
+    case 0xff46: printf("Attempted to read from write-only DMA\n"); return 0xff;
+    case 0xff47: return mmu->ppu->bgp;
+    case 0xff48: return mmu->ppu->obp0;
+    case 0xff49: return mmu->ppu->obp1;
+    case 0xff4a: return mmu->ppu->wy;
+    case 0xff4b: return mmu->ppu->wx;
     default: printf("Unhandled read to IO at 0x%04x\n", address); return mmu->io[address - 0xff00];
     }
 }
@@ -159,6 +166,11 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
     if (address <= 0x7fff)
     {
         return mmu->cartridge->rom[address];
+    }
+
+    if (address >= 0x8000 && address <= 0x9fff)
+    {
+        return mmu->ppu->vram[address - 0x8000];
     }
 
     if (address >= 0xc000 && address <= 0xdfff)

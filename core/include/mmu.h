@@ -15,11 +15,13 @@ extern "C"
 
 struct Cartridge;
 struct Cpu;
+struct Ppu;
 
 struct Mmu
 {
     struct Cartridge *cartridge;
     struct Cpu *cpu;
+    struct Ppu *ppu;
 
     u8 *wram;
     u8 *io; // Temporary
@@ -29,7 +31,7 @@ struct Mmu
     u8 *test_memory;
 };
 
-struct Mmu *mmu_create();
+struct Mmu *mmu_create(struct Cartridge *cartridge);
 void mmu_destroy(struct Mmu *);
 
 void mmu_write(struct Mmu *, u16 address, u8 value);

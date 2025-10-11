@@ -8,7 +8,8 @@ set(SOURCES
         src/cpu.c
         src/cpu_instructions.c
         src/gameboy.c
-        src/mmu.c)
+        src/mmu.c
+        src/ppu.c)
 
 set(HEADERS
         include/cartridge.h
@@ -16,6 +17,7 @@ set(HEADERS
         include/cpu_instructions.h
         include/gameboy.h
         include/mmu.h
+        include/ppu.h
         include/prerequisites.h
         include/types.h)
 

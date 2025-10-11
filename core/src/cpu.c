@@ -12,6 +12,7 @@
 
 #include "cpu_instructions.h"
 #include "mmu.h"
+#include "ppu.h"
 
 struct Cpu *cpu_create(struct Mmu *mmu)
 {

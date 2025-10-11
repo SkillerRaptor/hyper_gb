@@ -14,12 +14,14 @@ extern "C"
 struct Cartridge;
 struct Cpu;
 struct Mmu;
+struct Ppu;
 
 struct Gameboy
 {
     struct Cartridge *cartridge;
     struct Mmu *mmu;
     struct Cpu *cpu;
+    struct Ppu *ppu;
 };
 
 struct Gameboy *gameboy_create(const char *rom);
