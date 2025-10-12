@@ -175,6 +175,7 @@ int main()
 
     ImGuiIO *io = igGetIO_Nil();
     io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io->FontDefault = ImFontAtlas_AddFontFromFileTTF(io->Fonts, "./assets/fonts/Ruda-Regular.ttf", 16.0f, NULL, NULL);
 
     ImGuiStyle *style = igGetStyle();
     style->WindowBorderSize = 0.0f;
@@ -493,8 +494,8 @@ int main()
 
         static bool dockspace_open = true;
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar
-            | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-            | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+            | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus
+            | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
         igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2) { .x = 0.0f, .y = 0.0f });
         igBegin("DockSpace", &dockspace_open, window_flags);
@@ -507,17 +508,29 @@ int main()
             igDockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None);
 
             ImGuiID main_id = dockspace_id;
-            ImGuiID left_id = igDockBuilderSplitNode(main_id, ImGuiDir_Left, 0.25f, NULL, &main_id);
-            ImGuiID right_id = igDockBuilderSplitNode(main_id, ImGuiDir_Right, 0.33f, NULL, &main_id);
 
-            igDockBuilderDockWindow("CPU", left_id);
+            ImGuiID left_id = igDockBuilderSplitNode(main_id, ImGuiDir_Left, 0.25f, NULL, &main_id);
+            ImGuiID left_top_id = left_id;
+            ImGuiID left_middle_id = igDockBuilderSplitNode(left_top_id, ImGuiDir_Down, 0.8f, NULL, &left_top_id);
+            ImGuiID left_bottom_id = igDockBuilderSplitNode(left_middle_id, ImGuiDir_Down, 0.6f, NULL, &left_middle_id);
+
+            ImGuiID right_id = igDockBuilderSplitNode(main_id, ImGuiDir_Right, 0.33f, NULL, &main_id);
+            ImGuiID right_top_id = right_id;
+            ImGuiID right_middle_id = igDockBuilderSplitNode(right_top_id, ImGuiDir_Down, 0.6f, NULL, &right_top_id);
+            ImGuiID right_bottom_id = igDockBuilderSplitNode(right_middle_id, ImGuiDir_Down, 0.5f, NULL, &right_middle_id);
+
+            igDockBuilderDockWindow("CPU State", left_top_id);
+            igDockBuilderDockWindow("PPU State", left_middle_id);
             igDockBuilderDockWindow("Game Screen", main_id);
-            igDockBuilderDockWindow("PPU", right_id);
+            igDockBuilderDockWindow("VRAM Tile Data", right_top_id);
+            igDockBuilderDockWindow("VRAM Tile Maps", right_middle_id);
+            igDockBuilderDockWindow("OAM", right_bottom_id);
 
             igDockBuilderFinish(dockspace_id);
         }
 
-        igDockSpace(dockspace_id, (ImVec2) { .x = 0.0f, .y = 0.0f }, ImGuiDockNodeFlags_PassthruCentralNode, NULL);
+        igDockSpace(dockspace_id, (ImVec2) { .x = 0.0f, .y = 0.0f },
+            ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_PassthruCentralNode, NULL);
 
         if (igBeginMenuBar())
         {
@@ -538,8 +551,134 @@ int main()
 
         igEnd();
 
+        igBegin("CPU State", NULL, ImGuiWindowFlags_NoScrollbar);
+        igSeparatorText("Registers");
+        if (igBeginTable(
+                "Registers", 4, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, (ImVec2) { 0.0f, 0.0f }, 0.0f))
+        {
+            struct Registers registers = { 0 };
+            if (gameboy)
+            {
+                registers = gameboy->cpu->registers;
+            }
+
+            igTableNextRow(0, 0.0f);
+
+            igTableNextColumn();
+            igText("A");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.a);
+            igPopStyleColor(1);
+
+            igTableNextColumn();
+            igText("F");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.f);
+            igPopStyleColor(1);
+
+            igTableNextRow(0, 0.0f);
+            igTableNextColumn();
+            igText("B");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.b);
+            igPopStyleColor(1);
+
+            igTableNextColumn();
+            igText("C");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.c);
+            igPopStyleColor(1);
+
+            igTableNextRow(0, 0.0f);
+            igTableNextColumn();
+            igText("D");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.d);
+            igPopStyleColor(1);
+
+            igTableNextColumn();
+            igText("E");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.e);
+            igPopStyleColor(1);
+
+            igTableNextRow(0, 0.0f);
+            igTableNextColumn();
+            igText("H");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.h);
+            igPopStyleColor(1);
+            igTableNextColumn();
+            igText("L");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%02x", registers.l);
+            igPopStyleColor(1);
+
+            igTableNextRow(0, 0.0f);
+            igTableNextColumn();
+            igText("SP");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%04x", registers.sp);
+            igPopStyleColor(1);
+
+            igTableNextColumn();
+            igText("PC");
+            igTableNextColumn();
+            igPushStyleColor_U32(ImGuiCol_Text, 0xff808080);
+            igText("0x%04x", registers.pc);
+            igPopStyleColor(1);
+
+            igEndTable();
+        }
+
+        igSeparatorText("Flags");
+        if (igBeginTable("Flags", 4, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, (ImVec2) { 0.0f, 0.0f }, 0.0f))
+        {
+            igTableNextRow(0, 0.0f);
+
+            igTableNextColumn();
+            igText("Zero");
+            igTableNextColumn();
+            bool zero = gameboy ? cpu_is_flag(gameboy->cpu, FLAG_Z) : false;
+            igCheckbox("##Zero", &zero);
+
+            igTableNextColumn();
+            igText("Subtraction");
+            igTableNextColumn();
+            bool subtraction = gameboy ? cpu_is_flag(gameboy->cpu, FLAG_N) : false;
+            igCheckbox("##Subtraction", &subtraction);
+
+            igTableNextRow(0, 0.0f);
+            igTableNextColumn();
+            igText("Half Carry");
+            igTableNextColumn();
+            bool half_carry = gameboy ? cpu_is_flag(gameboy->cpu, FLAG_H) : false;
+            igCheckbox("##HalfCarry", &half_carry);
+
+            igTableNextColumn();
+            igText("Carry");
+            igTableNextColumn();
+            bool carry = gameboy ? cpu_is_flag(gameboy->cpu, FLAG_C) : false;
+            igCheckbox("##Carry", &carry);
+
+            igEndTable();
+        }
+        igEnd();
+
+        igBegin("PPU State", NULL, ImGuiWindowFlags_NoScrollbar);
+        igEnd();
+
         igPushStyleVar_Vec2(ImGuiStyleVar_WindowPadding, (ImVec2) { .x = 0.0f, .y = 0.0f });
-        igBegin("Game Screen", NULL, 0);
+        igBegin("Game Screen", NULL, ImGuiWindowFlags_NoScrollbar);
         igPopStyleVar(1);
 
         {
@@ -576,28 +715,7 @@ int main()
 
         igEnd();
 
-        igBegin("CPU", NULL, 0);
-        if (igCollapsingHeader_BoolPtr("Registers", NULL, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            if (gameboy)
-            {
-                igText("A: 0x%02x", gameboy->cpu->registers.a);
-                igText("F: 0x%02x", gameboy->cpu->registers.f);
-                igText("B: 0x%02x", gameboy->cpu->registers.b);
-                igText("C: 0x%02x", gameboy->cpu->registers.c);
-                igText("D: 0x%02x", gameboy->cpu->registers.d);
-                igText("E: 0x%02x", gameboy->cpu->registers.e);
-                igText("H: 0x%02x", gameboy->cpu->registers.h);
-                igText("L: 0x%02x", gameboy->cpu->registers.l);
-                igText("SP: 0x%04x", gameboy->cpu->registers.sp);
-                igText("PC: 0x%04x", gameboy->cpu->registers.pc);
-            }
-        }
-        igEnd();
-
-        igBegin("PPU", NULL, 0);
-
-        if (igCollapsingHeader_BoolPtr("Tile Data", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        igBegin("VRAM Tile Data", NULL, ImGuiWindowFlags_NoScrollbar);
         {
             ImVec2 available_size;
             igGetContentRegionAvail(&available_size);
@@ -631,8 +749,9 @@ int main()
                     .y = 1.0f,
                 });
         }
+        igEnd();
 
-        if (igCollapsingHeader_BoolPtr("Tile Maps", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        igBegin("VRAM Tile Maps", NULL, ImGuiWindowFlags_NoScrollbar);
         {
             ImVec2 available_size;
             igGetContentRegionAvail(&available_size);
@@ -703,8 +822,9 @@ int main()
                     });
             }
         }
+        igEnd();
 
-        if (igCollapsingHeader_BoolPtr("OAM", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        igBegin("OAM", NULL, ImGuiWindowFlags_NoScrollbar);
         {
             ImVec2 available_size;
             igGetContentRegionAvail(&available_size);
@@ -739,7 +859,6 @@ int main()
         igEnd();
 
         igRender();
-
         ImGui_ImplSDLRenderer3_RenderDrawData(igGetDrawData(), renderer);
 
         SDL_RenderPresent(renderer);
