@@ -16,14 +16,14 @@ struct Ppu *ppu_create(struct Gameboy *gb)
     ppu->lcd_status = 0;
     ppu->scy = 0;
     ppu->scx = 0;
-    ppu->ly = 0x94; // FIXME: It is hardcoded to V-Blank
+    ppu->ly = 0x90; // FIXME: It is hardcoded to V-Blank
     ppu->lyc = 0;
     ppu->bgp = 0;
     ppu->obp0 = 0;
     ppu->obp1 = 0;
     ppu->wy = 0;
     ppu->wx = 0;
-    ppu->vram = malloc(sizeof(u8) * 0x2000);
+    ppu->vram = calloc(1, sizeof(u8) * 0x2000);
 
     return ppu;
 }
@@ -32,4 +32,13 @@ void ppu_destroy(struct Ppu *ppu)
 {
     free(ppu->vram);
     free(ppu);
+}
+
+void ppu_tick(struct Ppu *ppu)
+{
+    ppu->ly += 1;
+    if (ppu->ly >= 154)
+    {
+        ppu->ly = 0;
+    }
 }

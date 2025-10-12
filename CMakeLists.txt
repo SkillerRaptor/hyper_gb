@@ -55,5 +55,11 @@ set(HEADERS
 )
 
 add_executable(hyper_gb ${SOURCES} ${HEADERS})
-target_link_libraries(hyper_gb PRIVATE ProjectWarnings core)
+target_link_libraries(hyper_gb PRIVATE ProjectWarnings)
 target_include_directories(hyper_gb PRIVATE include)
+target_link_libraries(
+        hyper_gb
+        PRIVATE
+        core
+        imgui
+        SDL3::SDL3-static)

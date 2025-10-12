@@ -7,18 +7,22 @@
 #include "cpu.h"
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "cpu_instructions.h"
 #include "gameboy.h"
 #include "mmu.h"
 
+FILE *file;
 struct Cpu *cpu_create(struct Gameboy *gb)
 {
+    file = fopen("latest.log", "w");
     struct Cpu *cpu = malloc(sizeof(struct Cpu));
     cpu->gb = gb;
 
     cpu->registers.a = 0x01;
+    cpu->registers.f = 0x00;
 
     cpu_set_flag(cpu, FLAG_Z, true);
     cpu_set_flag(cpu, FLAG_N, false);
@@ -737,6 +741,13 @@ void cpu_tick(struct Cpu *cpu)
             cpu->interrupt_master_enable = true;
         }
     }
+
+    fprintf(file,
+        "A: %02X F: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X SP: %04X PC: 00:%04X (%02X %02X %02X %02X)\n",
+        cpu->registers.a, cpu->registers.f, cpu->registers.b, cpu->registers.c, cpu->registers.d, cpu->registers.e,
+        cpu->registers.h, cpu->registers.l, cpu->registers.sp, cpu->registers.pc, mmu_read(cpu->gb->mmu, cpu->registers.pc),
+        mmu_read(cpu->gb->mmu, cpu->registers.pc + 1), mmu_read(cpu->gb->mmu, cpu->registers.pc + 2),
+        mmu_read(cpu->gb->mmu, cpu->registers.pc + 3));
 
     cpu_execute_opcode(cpu);
 }

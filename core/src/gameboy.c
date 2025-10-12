@@ -17,14 +17,17 @@
 struct Gameboy *gameboy_create(const char *rom)
 {
     struct Gameboy *gameboy = calloc(1, sizeof(struct Gameboy));
-    gameboy->cartridge = cartridge_create(rom);
+    gameboy->cartridge = rom ? cartridge_create(rom) : NULL;
     gameboy->mmu = mmu_create(gameboy);
     gameboy->cpu = cpu_create(gameboy);
     gameboy->ppu = ppu_create(gameboy);
 
-    char *cartridge_title = cartridge_get_title(gameboy->cartridge);
-    logger_info("Loaded cartridge '%s'", cartridge_title);
-    free(cartridge_title);
+    if (gameboy->cartridge)
+    {
+        char *cartridge_title = cartridge_get_title(gameboy->cartridge);
+        logger_info("Loaded cartridge '%s'", cartridge_title);
+        free(cartridge_title);
+    }
 
     return gameboy;
 }
@@ -38,10 +41,8 @@ void gameboy_destroy(struct Gameboy *gameboy)
     free(gameboy);
 }
 
-void gameboy_run(struct Gameboy *gameboy)
+void gameboy_tick(struct Gameboy *gameboy)
 {
-    for (;;)
-    {
-        cpu_tick(gameboy->cpu);
-    }
+    cpu_tick(gameboy->cpu);
+    ppu_tick(gameboy->ppu);
 }

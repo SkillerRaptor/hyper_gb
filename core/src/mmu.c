@@ -6,6 +6,7 @@
 
 #include "mmu.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "cartridge.h"
@@ -25,9 +26,9 @@ struct Mmu *mmu_create(struct Gameboy *gb)
 #if TESTS_ENABLED
     mmu->memory = malloc(sizeof(u8) * 0x10000);
 #else
-    mmu->wram = malloc(sizeof(u8) * 0x2000);
+    mmu->wram = calloc(1, sizeof(u8) * 0x2000);
     mmu->io = malloc(sizeof(u8) * 0x80);
-    mmu->hram = malloc(sizeof(u8) * 0x7f);
+    mmu->hram = calloc(1, sizeof(u8) * 0x7f);
 #endif
 
     return mmu;
@@ -95,6 +96,7 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
 #if TESTS_ENABLED
     return mmu->memory[address];
 #else
+
     if (address <= 0x7fff)
     {
         return mmu->gb->cartridge->data[address];
@@ -125,9 +127,7 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
         return mmu->gb->cpu->interrupt_enable;
     }
 
-    logger_warn("Unhandled read at 0x%04x", address);
-
-    return 0xff;
+    return 0x00;
 #endif
 }
 
@@ -139,6 +139,8 @@ static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
 
     switch (address)
     {
+    case 0xff01: printf("%c", value); break;
+    case 0xff02: break;
     case 0xff0f: cpu->interrupt_flag = value; break;
     case 0xff40: ppu->lcd_control = value; break;
     case 0xff41: ppu->lcd_status = value; break;
@@ -166,6 +168,7 @@ static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
 
     switch (address)
     {
+    // case 0xff00: return 0xff;
     case 0xff0f: return cpu->interrupt_flag;
     case 0xff40: return ppu->lcd_control;
     case 0xff41: return ppu->lcd_status;
