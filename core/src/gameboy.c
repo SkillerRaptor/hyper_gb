@@ -43,6 +43,8 @@ void gameboy_destroy(struct Gameboy *gameboy)
 
 void gameboy_tick(struct Gameboy *gameboy)
 {
-    cpu_tick(gameboy->cpu);
-    ppu_tick(gameboy->ppu);
+    // NOTE: The cycles are given as m-cycles
+    const u8 cycles = cpu_tick(gameboy->cpu);
+    ppu_tick(gameboy->ppu, cycles);
+    // FIXME: Add Timer and Tick it for n cycles
 }

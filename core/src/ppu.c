@@ -34,11 +34,4 @@ void ppu_destroy(struct Ppu *ppu)
     free(ppu);
 }
 
-void ppu_tick(struct Ppu *ppu)
-{
-    ppu->ly += 1;
-    if (ppu->ly >= 154)
-    {
-        ppu->ly = 0;
-    }
-}
+void ppu_tick(struct Ppu *ppu, u8 cycles) {}

@@ -41,7 +41,7 @@ struct Ppu
 struct Ppu *ppu_create(struct Gameboy *);
 void ppu_destroy(struct Ppu *);
 
-void ppu_tick(struct Ppu *);
+void ppu_tick(struct Ppu *, u8 cycles);
 
 #ifdef __cplusplus
 }

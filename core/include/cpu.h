@@ -165,7 +165,7 @@ i8 cpu_fetch_i8(struct Cpu *cpu);
 u8 cpu_fetch_u8(struct Cpu *cpu);
 u16 cpu_fetch_u16(struct Cpu *cpu);
 
-void cpu_tick(struct Cpu *);
+u8 cpu_tick(struct Cpu *);
 
 #ifdef __cplusplus
 }
