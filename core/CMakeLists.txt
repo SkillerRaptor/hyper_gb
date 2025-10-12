@@ -10,7 +10,8 @@ set(SOURCES
         src/gameboy.c
         src/logger.c
         src/mmu.c
-        src/ppu.c)
+        src/ppu.c
+        src/timer.c)
 
 set(HEADERS
         include/cartridge.h
@@ -21,6 +22,7 @@ set(HEADERS
         include/mmu.h
         include/ppu.h
         include/prerequisites.h
+        include/timer.h
         include/types.h)
 
 add_library(core STATIC ${SOURCES} ${HEADERS})

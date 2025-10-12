@@ -14,6 +14,7 @@
 #include "gameboy.h"
 #include "logger.h"
 #include "ppu.h"
+#include "timer.h"
 
 static void mmu_write_io(struct Mmu *mmu, u16 address, u8 value);
 static u8 mmu_read_io(struct Mmu *mmu, u16 address);
@@ -149,11 +150,16 @@ static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
 {
     struct Cpu *cpu = mmu->gb->cpu;
     struct Ppu *ppu = mmu->gb->ppu;
+    struct Timer *timer = mmu->gb->timer;
 
     switch (address)
     {
     case 0xff01: printf("%c", value); break;
     case 0xff02: break;
+    case 0xff04: timer->div = 0xff; break;
+    case 0xff05: timer->tima = value; break;
+    case 0xff06: timer->tma = value; break;
+    case 0xff07: timer->tac = value; break;
     case 0xff0f: cpu->interrupt_flag = value; break;
     case 0xff40: ppu->lcd_control = value; break;
     case 0xff41: ppu->lcd_status = value; break;
@@ -178,10 +184,15 @@ static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
 {
     const struct Cpu *cpu = mmu->gb->cpu;
     const struct Ppu *ppu = mmu->gb->ppu;
+    const struct Timer *timer = mmu->gb->timer;
 
     switch (address)
     {
     // case 0xff00: return 0xff;
+    case 0xff04: return timer->div;
+    case 0xff05: return timer->tima;
+    case 0xff06: return timer->tma;
+    case 0xff07: return timer->tac;
     case 0xff0f: return cpu->interrupt_flag;
     case 0xff40: return ppu->lcd_control;
     case 0xff41: return ppu->lcd_status;

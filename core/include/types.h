@@ -25,6 +25,9 @@ typedef uint64_t u64;
 
 typedef size_t usize;
 
+typedef float f32;
+typedef double f64;
+
 #ifdef __cplusplus
 }
 #endif
