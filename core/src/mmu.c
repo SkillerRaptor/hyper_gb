@@ -27,6 +27,7 @@ struct Mmu *mmu_create(struct Gameboy *gb)
     mmu->memory = malloc(sizeof(u8) * 0x10000);
 #else
     mmu->wram = calloc(1, sizeof(u8) * 0x2000);
+    mmu->oam = malloc(sizeof(u8) * 0xa0);
     mmu->io = malloc(sizeof(u8) * 0x80);
     mmu->hram = calloc(1, sizeof(u8) * 0x7f);
 #endif
@@ -41,6 +42,7 @@ void mmu_destroy(struct Mmu *mmu)
 #else
     free(mmu->hram);
     free(mmu->io);
+    free(mmu->oam);
     free(mmu->wram);
 #endif
 
@@ -66,6 +68,12 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
     if (address >= 0xc000 && address <= 0xdfff)
     {
         mmu->wram[address - 0xc000] = value;
+        return;
+    }
+
+    if (address >= 0xfe00 && address <= 0xfeff)
+    {
+        mmu->oam[address - 0xfe00] = value;
         return;
     }
 
@@ -110,6 +118,11 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
     if (address >= 0xc000 && address <= 0xdfff)
     {
         return mmu->wram[address - 0xc000];
+    }
+
+    if (address >= 0xfe00 && address <= 0xfeff)
+    {
+        return mmu->oam[address - 0xfe00];
     }
 
     if (address >= 0xff00 && address <= 0xff7f)

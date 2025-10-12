@@ -13,6 +13,7 @@
 #include "cpu.h"
 #include "gameboy.h"
 #include "logger.h"
+#include "mmu.h"
 #include "ppu.h"
 
 enum Color
@@ -86,6 +87,12 @@ int main()
         (int) vram_tile_maps_width, (int) vram_tile_maps_height);
     SDL_SetTextureScaleMode(vram_tile_maps_2, SDL_SCALEMODE_NEAREST);
 
+    const uint32_t oam_width = 10 * 8;
+    const uint32_t oam_height = 4 * 8;
+    SDL_Texture *oam = SDL_CreateTexture(
+        renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (int) oam_width, (int) oam_height);
+    SDL_SetTextureScaleMode(oam, SDL_SCALEMODE_NEAREST);
+
     {
         void *pixels_ptr;
         int pitch;
@@ -144,6 +151,21 @@ int main()
             }
         }
         SDL_UnlockTexture(vram_tile_maps_2);
+    }
+
+    {
+        void *pixels_ptr;
+        int pitch;
+        SDL_LockTexture(oam, NULL, &pixels_ptr, &pitch);
+        uint32_t *pixels = pixels_ptr;
+        for (uint32_t y = 0; y < oam_height; ++y)
+        {
+            for (uint32_t x = 0; x < oam_width; ++x)
+            {
+                pixels[(oam_width * y) + x] = 0xff000000;
+            }
+        }
+        SDL_UnlockTexture(oam);
     }
 
     igCreateContext(NULL);
@@ -409,6 +431,54 @@ int main()
             SDL_UnlockTexture(vram_tile_maps_2);
         }
 
+        if (gameboy)
+        {
+            void *pixels_ptr;
+            int pitch;
+            SDL_LockTexture(oam, NULL, &pixels_ptr, &pitch);
+            uint32_t *pixels = pixels_ptr;
+
+            for (uint32_t i = 0; i < 40; ++i)
+            {
+                const uint32_t x = i % 10;
+                const uint32_t y = i / 10;
+
+                const uint32_t y_position = gameboy->mmu->oam[(i * 4) + 0x00];
+                const uint32_t x_position = gameboy->mmu->oam[(i * 4) + 0x01];
+                const uint32_t tile_index = gameboy->mmu->oam[(i * 4) + 0x02];
+                const uint32_t attributes = gameboy->mmu->oam[(i * 4) + 0x03];
+
+                const uint32_t start = tile_index * 16;
+                for (uint32_t k = 0; k < 8; ++k)
+                {
+                    const uint8_t first_byte = gameboy->ppu->vram[start + k * 2 + 0];
+                    const uint8_t second_byte = gameboy->ppu->vram[start + k * 2 + 1];
+
+                    // Decoding Tile
+                    for (uint8_t j = 0; j < 8; ++j)
+                    {
+                        const uint8_t low_bit = (first_byte >> (7 - j)) & 0b1;
+                        const uint8_t high_bit = (second_byte >> (7 - j)) & 0b1;
+                        const uint8_t color_bits = (high_bit << 1) | low_bit;
+
+                        enum Color color_enum = COLOR_BLACK;
+                        switch (color_bits)
+                        {
+                        case 0: color_enum = COLOR_BLACK; break;
+                        case 1: color_enum = COLOR_DARK_GRAY; break;
+                        case 2: color_enum = COLOR_LIGHT_GRAY; break;
+                        case 3: color_enum = COLOR_WHITE; break;
+                        default: break;
+                        }
+
+                        pixels[oam_width * (y * 8 + k) + (x * 8 + j)] = get_real_color(color_enum);
+                    }
+                }
+            }
+
+            SDL_UnlockTexture(oam);
+        }
+
         SDL_RenderClear(renderer);
 
         ImGui_ImplSDL3_NewFrame();
@@ -527,7 +597,7 @@ int main()
 
         igBegin("PPU", NULL, 0);
 
-        if (igCollapsingHeader_BoolPtr("VRAM Tile Data", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        if (igCollapsingHeader_BoolPtr("Tile Data", NULL, ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImVec2 available_size;
             igGetContentRegionAvail(&available_size);
@@ -562,7 +632,7 @@ int main()
                 });
         }
 
-        if (igCollapsingHeader_BoolPtr("VRAM Tile Maps", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        if (igCollapsingHeader_BoolPtr("Tile Maps", NULL, ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImVec2 available_size;
             igGetContentRegionAvail(&available_size);
@@ -632,6 +702,39 @@ int main()
                         .y = 1.0f,
                     });
             }
+        }
+
+        if (igCollapsingHeader_BoolPtr("OAM", NULL, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImVec2 available_size;
+            igGetContentRegionAvail(&available_size);
+
+            ImVec2 cursor_screen_pos;
+            igGetCursorScreenPos(&cursor_screen_pos);
+
+            const float scale = min(available_size.x / (float) oam_width, available_size.y / (float) oam_height);
+
+            const ImVec2 image_size = { .x = (float) oam_width * scale, .y = (float) oam_height * scale };
+            const ImVec2 cursor_position = {
+                .x = cursor_screen_pos.x + ceilf(max(0.0f, (available_size.x - image_size.x) * 0.5f)),
+                .y = cursor_screen_pos.y,
+            };
+            igSetCursorScreenPos(cursor_position);
+
+            igImage(
+                (ImTextureRef) {
+                    ._TexData = NULL,
+                    ._TexID = (ImTextureID) oam,
+                },
+                image_size,
+                (ImVec2) {
+                    .x = 0.0f,
+                    .y = 0.0f,
+                },
+                (ImVec2) {
+                    .x = 1.0f,
+                    .y = 1.0f,
+                });
         }
         igEnd();
 

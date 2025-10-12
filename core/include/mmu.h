@@ -23,6 +23,7 @@ struct Mmu
     u8 *memory;
 #else
     u8 *wram;
+    u8 *oam;
     u8 *io;
     u8 *hram;
 #endif
