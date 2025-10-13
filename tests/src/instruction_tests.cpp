@@ -16,18 +16,18 @@
 
 struct TestState
 {
-    u8 a { 0 };
-    u8 b { 0 };
-    u8 c { 0 };
-    u8 d { 0 };
-    u8 e { 0 };
-    u8 f { 0 };
-    u8 h { 0 };
-    u8 l { 0 };
-    u16 pc { 0 };
-    u16 sp { 0 };
-    u8 ime { 0 };
-    std::vector<std::pair<u16, u8>> ram;
+    uint8_t a { 0 };
+    uint8_t b { 0 };
+    uint8_t c { 0 };
+    uint8_t d { 0 };
+    uint8_t e { 0 };
+    uint8_t f { 0 };
+    uint8_t h { 0 };
+    uint8_t l { 0 };
+    uint16_t pc { 0 };
+    uint16_t sp { 0 };
+    uint8_t ime { 0 };
+    std::vector<std::pair<uint16_t, uint8_t>> ram;
 };
 
 void from_json(const nlohmann::json &json, TestState &test_state)
@@ -98,7 +98,7 @@ void execute_test(const std::string &test_file)
         }
 
         // Max Instruction Steps
-        for (usize i = 0; i < 100; ++i)
+        for (size_t i = 0; i < 100; ++i)
         {
             cpu_tick(cpu);
 
