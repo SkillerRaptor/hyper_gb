@@ -14,9 +14,11 @@ set(SOURCES
         src/gb/utils/logger.c)
 
 set(HEADERS
+        include/gb.h
         include/gb/cartridge.h
         include/gb/cpu.h
         include/gb/cpu_instructions.h
+        include/gb/definitions.h
         include/gb/gameboy.h
         include/gb/mmu.h
         include/gb/ppu.h

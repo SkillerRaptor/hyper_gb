@@ -49,10 +49,11 @@ add_subdirectory(core)
 add_subdirectory(tests)
 
 set(SOURCES
+        src/emulator.c
         src/main.c)
 
 set(HEADERS
-)
+        include/emulator.h)
 
 add_executable(gb_emu ${SOURCES} ${HEADERS})
 target_link_libraries(gb_emu PRIVATE ProjectWarnings)

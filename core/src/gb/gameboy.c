@@ -10,6 +10,7 @@
 
 #include "gb/cartridge.h"
 #include "gb/cpu.h"
+#include "gb/definitions.h"
 #include "gb/mmu.h"
 #include "gb/ppu.h"
 #include "gb/timer.h"
@@ -47,7 +48,7 @@ void gameboy_destroy(struct Gameboy *gb)
 void gameboy_run_frame(struct Gameboy *gb)
 {
     uint32_t cycles_this_frame = 0;
-    while (cycles_this_frame < GAMEBOY_FRAME_CYCLES)
+    while (cycles_this_frame < GB_FRAME_CYCLES)
     {
         // NOTE: The cycles are given as m-cycles
         const uint8_t m_cycles = cpu_tick(gb->cpu);

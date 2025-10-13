@@ -9,12 +9,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "gb/definitions.h"
 #include "gb/gameboy.h"
 #include "gb/utils/logger.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
-#define GAMEBOY_DIVIDER_HZ 16384.0
-#define GAMEBOY_DIVIDER_CYCLES (GAMEBOY_MASTER_CLOCK_HZ / GAMEBOY_DIVIDER_HZ)
+#define GB_DIVIDER_HZ 16384.0
+#define GB_DIVIDER_CYCLES (GB_MASTER_CLOCK_HZ / GB_DIVIDER_HZ)
 
 static bool timer_is_enabled(struct Timer *);
 static uint32_t timer_get_frequency(struct Timer *);
@@ -39,10 +40,10 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
 {
     // DIV is incremented at a rate of 16384Hz which is equal to 256 t-cycles or 64 m-cycles
     timer->div_counter += t_cycles;
-    if (timer->div_counter >= (uint16_t) GAMEBOY_DIVIDER_CYCLES)
+    if (timer->div_counter >= (uint16_t) GB_DIVIDER_CYCLES)
     {
         timer->div += 1;
-        timer->div_counter -= (uint16_t) GAMEBOY_DIVIDER_CYCLES;
+        timer->div_counter -= (uint16_t) GB_DIVIDER_CYCLES;
     }
 
     if (!timer_is_enabled(timer))
@@ -52,7 +53,7 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
 
     timer->counter += t_cycles;
 
-    const uint16_t frequency = (uint16_t) (GAMEBOY_MASTER_CLOCK_HZ / timer_get_frequency(timer));
+    const uint16_t frequency = (uint16_t) (GB_MASTER_CLOCK_HZ / timer_get_frequency(timer));
     while (timer->counter >= frequency)
     {
         timer->tima += 1;
