@@ -11,13 +11,10 @@ extern "C"
 {
 #endif
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#    define LITTLE_ENDIAN 1
-#    define BIG_ENDIAN 0
-#else
-#    define LITTLE_ENDIAN 0
-#    define BIG_ENDIAN 1
-#endif
+#define GB_BIT(n) (1ull << (n))
+#define GB_BIT_SET(x, n) ((x) |= GB_BIT(n))
+#define GB_BIT_CLEAR(x, n) ((x) &= ~GB_BIT(n))
+#define GB_BIT_CHECK(x, n) (((x) >> (n)) & 0b1)
 
 #ifdef __cplusplus
 }

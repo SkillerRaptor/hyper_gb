@@ -23,7 +23,8 @@ set(HEADERS
         include/ppu.h
         include/prerequisites.h
         include/timer.h
-        include/types.h)
+        include/types.h
+        include/utils/bits.h)
 
 add_library(gb_core STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(gb_core PRIVATE ProjectWarnings)

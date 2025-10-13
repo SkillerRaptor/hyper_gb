@@ -8,6 +8,7 @@
 
 #include "gameboy.h"
 #include "mmu.h"
+#include "utils/bits.h"
 
 // Load instructions
 u8 cpu_ld_r8_r8(struct Cpu *cpu, const enum Register8 dst, const enum Register8 src)
@@ -515,7 +516,7 @@ u8 cpu_xor_a_n8(struct Cpu *cpu)
 // Bit flag instructions
 static void cpu_bit_u3(struct Cpu *cpu, const u8 bit, const u8 value)
 {
-    const bool is_zero = !CHECK_BIT(value, bit);
+    const bool is_zero = !GB_BIT_CHECK(value, bit);
 
     cpu_set_flag(cpu, FLAG_Z, is_zero);
     cpu_set_flag(cpu, FLAG_N, false);
@@ -536,10 +537,10 @@ u8 cpu_bit_u3_hl(struct Cpu *cpu, const u8 bit)
     return 3;
 }
 
-static u8 cpu_res_u3(const u8 bit, const u8 value)
+static u8 cpu_res_u3(const u8 bit, u8 value)
 {
-    const u8 result = CLEAR_BIT(value, bit);
-    return result;
+    GB_BIT_CLEAR(value, bit);
+    return value;
 }
 
 u8 cpu_res_u3_r8(struct Cpu *cpu, const u8 bit, const enum Register8 dst)
@@ -558,10 +559,10 @@ u8 cpu_res_u3_hl(struct Cpu *cpu, const u8 bit)
     return 4;
 }
 
-static u8 cpu_set_u3(const u8 bit, const u8 value)
+static u8 cpu_set_u3(const u8 bit, u8 value)
 {
-    const u8 result = SET_BIT(value, bit);
-    return result;
+    GB_BIT_SET(value, bit);
+    return value;
 }
 
 u8 cpu_set_u3_r8(struct Cpu *cpu, const u8 bit, const enum Register8 dst)
@@ -584,7 +585,7 @@ u8 cpu_set_u3_hl(struct Cpu *cpu, const u8 bit)
 static u8 cpu_rl(struct Cpu *cpu, const u8 value)
 {
     const u8 carry = cpu_is_flag(cpu, FLAG_C);
-    const bool will_carry = CHECK_BIT(value, 7);
+    const bool will_carry = GB_BIT_CHECK(value, 7);
     const u8 result = (value << 1) | carry;
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
@@ -620,7 +621,7 @@ u8 cpu_rla(struct Cpu *cpu)
 
 static u8 cpu_rlc(struct Cpu *cpu, const u8 value)
 {
-    const u8 carry = CHECK_BIT(value, 7);
+    const u8 carry = GB_BIT_CHECK(value, 7);
     const u8 result = (value << 1) | carry;
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
@@ -657,7 +658,7 @@ u8 cpu_rlca(struct Cpu *cpu)
 static u8 cpu_rr(struct Cpu *cpu, const u8 value)
 {
     const u8 carry = cpu_is_flag(cpu, FLAG_C);
-    const bool will_carry = CHECK_BIT(value, 0);
+    const bool will_carry = GB_BIT_CHECK(value, 0);
 
     const u8 result = (value >> 1) | (carry << 7);
 
@@ -694,7 +695,7 @@ u8 cpu_rra(struct Cpu *cpu)
 
 static u8 cpu_rrc(struct Cpu *cpu, const u8 value)
 {
-    const u8 carry = CHECK_BIT(value, 0);
+    const u8 carry = GB_BIT_CHECK(value, 0);
     const u8 result = (value >> 1) | (carry << 7);
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
@@ -730,7 +731,7 @@ u8 cpu_rrca(struct Cpu *cpu)
 
 static u8 cpu_sla(struct Cpu *cpu, const u8 value)
 {
-    const u8 carry = CHECK_BIT(value, 7);
+    const u8 carry = GB_BIT_CHECK(value, 7);
     const u8 result = value << 1;
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
@@ -759,17 +760,17 @@ u8 cpu_sla_hl(struct Cpu *cpu)
 
 static u8 cpu_sra(struct Cpu *cpu, const u8 value)
 {
-    const u8 carry = CHECK_BIT(value, 0);
-    const u8 top_bit = CHECK_BIT(value, 7);
+    const u8 carry = GB_BIT_CHECK(value, 0);
+    const u8 top_bit = GB_BIT_CHECK(value, 7);
 
     u8 result = value >> 1;
     if (top_bit)
     {
-        result = SET_BIT(result, 7);
+        GB_BIT_SET(result, 7);
     }
     else
     {
-        result = CLEAR_BIT(result, 7);
+        GB_BIT_CLEAR(result, 7);
     }
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
@@ -798,7 +799,7 @@ u8 cpu_sra_hl(struct Cpu *cpu)
 
 static u8 cpu_srl(struct Cpu *cpu, const u8 value)
 {
-    const u8 carry = CHECK_BIT(value, 0);
+    const u8 carry = GB_BIT_CHECK(value, 0);
     const u8 result = value >> 1;
 
     cpu_set_flag(cpu, FLAG_Z, result == 0);
