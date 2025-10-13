@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "mmu.h"
+#include "gb/mmu.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cartridge.h"
-#include "cpu.h"
-#include "gameboy.h"
-#include "logger.h"
-#include "ppu.h"
-#include "timer.h"
+#include "gb/cartridge.h"
+#include "gb/cpu.h"
+#include "gb/gameboy.h"
+#include "gb/logger.h"
+#include "gb/ppu.h"
+#include "gb/timer.h"
 
 static void mmu_write_io(struct Mmu *mmu, u16 address, u8 value);
 static u8 mmu_read_io(struct Mmu *mmu, u16 address);

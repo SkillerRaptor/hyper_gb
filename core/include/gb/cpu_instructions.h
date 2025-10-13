@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "cpu.h"
+#include "gb/cpu.h"
 
 #ifdef __cplusplus
 extern "C"

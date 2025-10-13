@@ -8,8 +8,8 @@
 
 #include <stdbool.h>
 
-#include "prerequisites.h"
-#include "types.h"
+#include "gb/prerequisites.h"
+#include "gb/types.h"
 
 #ifdef __cplusplus
 extern "C"

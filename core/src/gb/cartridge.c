@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "cartridge.h"
+#include "gb/cartridge.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "logger.h"
+#include "gb/logger.h"
 
 struct Cartridge *cartridge_create(const char *rom)
 {

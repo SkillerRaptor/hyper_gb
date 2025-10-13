@@ -10,9 +10,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
-#include "cpu.h"
-#include "gameboy.h"
-#include "mmu.h"
+#include "gb/cpu.h"
+#include "gb/gameboy.h"
+#include "gb/mmu.h"
 
 struct TestState
 {

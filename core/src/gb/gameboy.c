@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "gameboy.h"
+#include "gb/gameboy.h"
 
 #include <stdlib.h>
 
-#include "cartridge.h"
-#include "cpu.h"
-#include "logger.h"
-#include "mmu.h"
-#include "ppu.h"
-#include "timer.h"
+#include "gb/cartridge.h"
+#include "gb/cpu.h"
+#include "gb/logger.h"
+#include "gb/mmu.h"
+#include "gb/ppu.h"
+#include "gb/timer.h"
 
 struct Gameboy *gameboy_create(const char *rom)
 {

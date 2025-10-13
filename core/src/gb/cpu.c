@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "cpu.h"
+#include "gb/cpu.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cpu_instructions.h"
-#include "gameboy.h"
-#include "logger.h"
-#include "mmu.h"
+#include "gb/cpu_instructions.h"
+#include "gb/gameboy.h"
+#include "gb/logger.h"
+#include "gb/mmu.h"
 
 static u8 cpu_execute_opcode(struct Cpu *cpu, u8 opcode);
 static u8 cpu_execute_cb_opcode(struct Cpu *cpu, u8 opcode);

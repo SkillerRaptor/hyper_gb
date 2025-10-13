@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "logger.h"
+#include "gb/logger.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
 
-#include "types.h"
+#include "gb/types.h"
 
 enum LogLevel
 {

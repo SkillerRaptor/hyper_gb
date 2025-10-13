@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "timer.h"
+#include "gb/timer.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "gameboy.h"
-#include "logger.h"
+#include "gb/gameboy.h"
+#include "gb/logger.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
 #define GAMEBOY_DIVIDER_HZ 16384.0

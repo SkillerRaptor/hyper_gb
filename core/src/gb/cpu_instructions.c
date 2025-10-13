@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "cpu_instructions.h"
+#include "gb/cpu_instructions.h"
 
-#include "gameboy.h"
-#include "mmu.h"
-#include "utils/bits.h"
+#include "gb/gameboy.h"
+#include "gb/mmu.h"
+#include "gb/utils/bits.h"
 
 // Load instructions
 u8 cpu_ld_r8_r8(struct Cpu *cpu, const enum Register8 dst, const enum Register8 src)

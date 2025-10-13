@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "ppu.h"
+#include "gb/ppu.h"
 
 #include <stdlib.h>
 
-#include "logger.h"
-#include "prerequisites.h"
+#include "gb/logger.h"
+#include "gb/prerequisites.h"
 
 #define PPU_MODE_OAM_SCAN_DOTS 80
 #define PPU_MODE_DRAWING_DOTS 289

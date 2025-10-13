@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "types.h"
+#include "gb/types.h"
 
 #ifdef __cplusplus
 extern "C"

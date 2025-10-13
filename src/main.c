@@ -10,11 +10,10 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 
-#include "cpu.h"
-#include "gameboy.h"
-#include "logger.h"
-#include "mmu.h"
-#include "ppu.h"
+#include "gb/cpu.h"
+#include "gb/gameboy.h"
+#include "gb/mmu.h"
+#include "gb/ppu.h"
 
 enum Color
 {
