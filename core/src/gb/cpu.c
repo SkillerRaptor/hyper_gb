@@ -15,8 +15,8 @@
 #include "gb/logger.h"
 #include "gb/mmu.h"
 
-static u8 cpu_execute_opcode(struct Cpu *cpu, u8 opcode);
-static u8 cpu_execute_cb_opcode(struct Cpu *cpu, u8 opcode);
+static uint8_t cpu_execute_opcode(struct Cpu *cpu, uint8_t opcode);
+static uint8_t cpu_execute_cb_opcode(struct Cpu *cpu, uint8_t opcode);
 
 FILE *file;
 struct Cpu *cpu_create(struct Gameboy *gb)
@@ -53,7 +53,7 @@ struct Cpu *cpu_create(struct Gameboy *gb)
 
 void cpu_destroy(struct Cpu *cpu) { free(cpu); }
 
-void cpu_set_register8(struct Cpu *cpu, const enum Register8 reg, const u8 value)
+void cpu_set_register8(struct Cpu *cpu, const enum Register8 reg, const uint8_t value)
 {
     switch (reg)
     {
@@ -83,7 +83,7 @@ uint8_t cpu_get_register8(struct Cpu *cpu, const enum Register8 reg)
     }
 }
 
-void cpu_set_register16(struct Cpu *cpu, const enum Register16 reg, const u16 value)
+void cpu_set_register16(struct Cpu *cpu, const enum Register16 reg, const uint16_t value)
 {
     switch (reg)
     {
@@ -133,45 +133,45 @@ bool cpu_is_condition(struct Cpu *cpu, const enum ConditionCode cc)
     }
 }
 
-void cpu_push_stack(struct Cpu *cpu, const u16 value)
+void cpu_push_stack(struct Cpu *cpu, const uint16_t value)
 {
     cpu->registers.sp -= 1;
-    mmu_write(cpu->gb->mmu, cpu->registers.sp, (u8) ((value & 0xff00) >> 8));
+    mmu_write(cpu->gb->mmu, cpu->registers.sp, (uint8_t) ((value & 0xff00) >> 8));
     cpu->registers.sp -= 1;
-    mmu_write(cpu->gb->mmu, cpu->registers.sp, (u8) ((value & 0x00ff) >> 0));
+    mmu_write(cpu->gb->mmu, cpu->registers.sp, (uint8_t) ((value & 0x00ff) >> 0));
 }
 
-u16 cpu_pop_stack(struct Cpu *cpu)
+uint16_t cpu_pop_stack(struct Cpu *cpu)
 {
-    const u8 lower_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
+    const uint8_t lower_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
-    const u8 higher_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
+    const uint8_t higher_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
-    const u16 result = ((u16) higher_byte << 8) | (u16) lower_byte;
+    const uint16_t result = ((uint16_t) higher_byte << 8) | (uint16_t) lower_byte;
     return result;
 }
 
-i8 cpu_fetch_i8(struct Cpu *cpu) { return (i8) cpu_fetch_u8(cpu); }
+int8_t cpu_fetch_i8(struct Cpu *cpu) { return (int8_t) cpu_fetch_u8(cpu); }
 
-u8 cpu_fetch_u8(struct Cpu *cpu)
+uint8_t cpu_fetch_u8(struct Cpu *cpu)
 {
-    const u8 byte = mmu_read(cpu->gb->mmu, cpu->registers.pc);
+    const uint8_t byte = mmu_read(cpu->gb->mmu, cpu->registers.pc);
     cpu->registers.pc += 1;
 
     return byte;
 }
 
-u16 cpu_fetch_u16(struct Cpu *cpu)
+uint16_t cpu_fetch_u16(struct Cpu *cpu)
 {
-    const u16 lower_byte = cpu_fetch_u8(cpu);
-    const u16 higher_byte = cpu_fetch_u8(cpu);
+    const uint16_t lower_byte = cpu_fetch_u8(cpu);
+    const uint16_t higher_byte = cpu_fetch_u8(cpu);
 
     return (higher_byte << 8) | lower_byte;
 }
 
-u8 cpu_tick(struct Cpu *cpu)
+uint8_t cpu_tick(struct Cpu *cpu)
 {
     if (cpu->ime_delay > 0)
     {
@@ -191,17 +191,17 @@ u8 cpu_tick(struct Cpu *cpu)
         mmu_read(cpu->gb->mmu, cpu->registers.pc + 3));
 #endif
 
-    const u8 opcode = cpu_fetch_u8(cpu);
+    const uint8_t opcode = cpu_fetch_u8(cpu);
     if (opcode == 0xcb)
     {
-        const u8 cb_opcode = cpu_fetch_u8(cpu);
+        const uint8_t cb_opcode = cpu_fetch_u8(cpu);
         return cpu_execute_cb_opcode(cpu, cb_opcode);
     }
 
     return cpu_execute_opcode(cpu, opcode);
 }
 
-static u8 cpu_execute_opcode(struct Cpu *cpu, const u8 opcode)
+static uint8_t cpu_execute_opcode(struct Cpu *cpu, const uint8_t opcode)
 {
     switch (opcode)
     {
@@ -453,7 +453,7 @@ static u8 cpu_execute_opcode(struct Cpu *cpu, const u8 opcode)
     }
 }
 
-static u8 cpu_execute_cb_opcode(struct Cpu *cpu, const u8 opcode)
+static uint8_t cpu_execute_cb_opcode(struct Cpu *cpu, const uint8_t opcode)
 {
     switch (opcode)
     {

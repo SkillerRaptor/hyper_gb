@@ -7,10 +7,9 @@
 #include "gb/logger.h"
 
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <time.h>
-
-#include "gb/types.h"
 
 enum LogLevel
 {
@@ -42,12 +41,12 @@ static void logger_vlog(const enum LogLevel level, const char *fmt, va_list args
 
     const struct tm *local_time = localtime(&current_time);
 
-    const u16 year = local_time->tm_year + 1900;
-    const u8 month = local_time->tm_mon;
-    const u8 day = local_time->tm_mday;
-    const u8 hour = local_time->tm_hour;
-    const u8 minute = local_time->tm_min;
-    const u8 second = local_time->tm_sec;
+    const uint16_t year = (uint16_t) local_time->tm_year + 1900;
+    const uint8_t month = (uint8_t) local_time->tm_mon;
+    const uint8_t day = (uint8_t) local_time->tm_mday;
+    const uint8_t hour = (uint8_t) local_time->tm_hour;
+    const uint8_t minute = (uint8_t) local_time->tm_min;
+    const uint8_t second = (uint8_t) local_time->tm_sec;
 
     const char *level_color = s_log_level_colors[level];
     const char *level_string = s_log_level_strings[level];

@@ -17,7 +17,7 @@
 #define GAMEBOY_DIVIDER_CYCLES (GAMEBOY_MASTER_CLOCK_HZ / GAMEBOY_DIVIDER_HZ)
 
 static bool timer_is_enabled(struct Timer *);
-static u32 timer_get_frequency(struct Timer *);
+static uint32_t timer_get_frequency(struct Timer *);
 
 struct Timer *timer_create(struct Gameboy *gb)
 {
@@ -35,14 +35,14 @@ struct Timer *timer_create(struct Gameboy *gb)
 
 void timer_destroy(struct Timer *timer) { free(timer); }
 
-void timer_tick(struct Timer *timer, const u8 t_cycles)
+void timer_tick(struct Timer *timer, const uint8_t t_cycles)
 {
     // DIV is incremented at a rate of 16384Hz which is equal to 256 t-cycles or 64 m-cycles
     timer->div_counter += t_cycles;
-    if (timer->div_counter >= (u16) GAMEBOY_DIVIDER_CYCLES)
+    if (timer->div_counter >= (uint16_t) GAMEBOY_DIVIDER_CYCLES)
     {
         timer->div += 1;
-        timer->div_counter -= (u16) GAMEBOY_DIVIDER_CYCLES;
+        timer->div_counter -= (uint16_t) GAMEBOY_DIVIDER_CYCLES;
     }
 
     if (!timer_is_enabled(timer))
@@ -52,7 +52,7 @@ void timer_tick(struct Timer *timer, const u8 t_cycles)
 
     timer->counter += t_cycles;
 
-    const u16 frequency = (u16) (GAMEBOY_MASTER_CLOCK_HZ / timer_get_frequency(timer));
+    const uint16_t frequency = (uint16_t) (GAMEBOY_MASTER_CLOCK_HZ / timer_get_frequency(timer));
     while (timer->counter >= frequency)
     {
         timer->tima += 1;
@@ -69,9 +69,9 @@ void timer_tick(struct Timer *timer, const u8 t_cycles)
 
 static bool timer_is_enabled(struct Timer *timer) { return ((timer->tac >> 2) & 0b1) != 0; }
 
-static u32 timer_get_frequency(struct Timer *timer)
+static uint32_t timer_get_frequency(struct Timer *timer)
 {
-    const u8 clock = timer->tac & 0b11;
+    const uint8_t clock = timer->tac & 0b11;
     switch (clock)
     {
     case 0b00: return 4096;

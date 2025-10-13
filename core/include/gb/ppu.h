@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "gb/types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -28,30 +28,30 @@ struct Ppu
     struct Gameboy *gb;
 
     // Memory
-    u8 *vram;
+    uint8_t *vram;
 
     // Registers
-    u8 lcd_control; // 0xff40 - LCD control
-    u8 lcd_status; // 0xff41 - LCD status
-    u8 scy; // 0xff42 - Background viewport Y
-    u8 scx; // 0xff43 - Background viewport X
-    u8 ly; // 0xff44 - LCD Y coordinate
-    u8 lyc; // 0xff45 - LY compare
-    u8 bgp; // 0xff47 - BG palette data
-    u8 obp0; // 0xff48 - OBJ palette 0 data
-    u8 obp1; // 0xff49 - OBJ palette 1 data
-    u8 wy; // 0xff4a - Window Y position
-    u8 wx; // 0xff4b - Window X position plus 7
+    uint8_t lcd_control; // 0xff40 - LCD control
+    uint8_t lcd_status; // 0xff41 - LCD status
+    uint8_t scy; // 0xff42 - Background viewport Y
+    uint8_t scx; // 0xff43 - Background viewport X
+    uint8_t ly; // 0xff44 - LCD Y coordinate
+    uint8_t lyc; // 0xff45 - LY compare
+    uint8_t bgp; // 0xff47 - BG palette data
+    uint8_t obp0; // 0xff48 - OBJ palette 0 data
+    uint8_t obp1; // 0xff49 - OBJ palette 1 data
+    uint8_t wy; // 0xff4a - Window Y position
+    uint8_t wx; // 0xff4b - Window X position plus 7
 
     // Others
-    u16 dots_counter;
+    uint16_t dots_counter;
     enum PpuMode mode;
 };
 
 struct Ppu *ppu_create(struct Gameboy *);
 void ppu_destroy(struct Ppu *);
 
-void ppu_tick(struct Ppu *, u8 t_cycles);
+void ppu_tick(struct Ppu *, uint8_t t_cycles);
 
 #ifdef __cplusplus
 }

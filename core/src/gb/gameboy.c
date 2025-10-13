@@ -46,12 +46,12 @@ void gameboy_destroy(struct Gameboy *gb)
 
 void gameboy_run_frame(struct Gameboy *gb)
 {
-    u32 cycles_this_frame = 0;
+    uint32_t cycles_this_frame = 0;
     while (cycles_this_frame < GAMEBOY_FRAME_CYCLES)
     {
         // NOTE: The cycles are given as m-cycles
-        const u8 m_cycles = cpu_tick(gb->cpu);
-        const u8 t_cycles = m_cycles * 4;
+        const uint8_t m_cycles = cpu_tick(gb->cpu);
+        const uint8_t t_cycles = m_cycles * 4;
         ppu_tick(gb->ppu, t_cycles);
         timer_tick(gb->timer, t_cycles);
         cycles_this_frame += t_cycles;

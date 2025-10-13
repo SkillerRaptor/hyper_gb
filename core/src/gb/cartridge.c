@@ -28,7 +28,7 @@ struct Cartridge *cartridge_create(const char *rom)
 
     fseek(file, 0, SEEK_END);
 
-    const usize file_size = ftell(file);
+    const size_t file_size = ftell(file);
     if (file_size == 0)
     {
         logger_err("Failed to get size of rom file");
@@ -41,7 +41,7 @@ struct Cartridge *cartridge_create(const char *rom)
 
     cartridge->data = malloc(file_size);
 
-    const usize read_size = fread(cartridge->data, sizeof(u8), file_size, file);
+    const size_t read_size = fread(cartridge->data, sizeof(uint8_t), file_size, file);
     if (read_size != file_size)
     {
         logger_err("Failed to read rom file");

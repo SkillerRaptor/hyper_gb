@@ -16,8 +16,8 @@
 #include "gb/ppu.h"
 #include "gb/timer.h"
 
-static void mmu_write_io(struct Mmu *mmu, u16 address, u8 value);
-static u8 mmu_read_io(struct Mmu *mmu, u16 address);
+static void mmu_write_io(struct Mmu *mmu, uint16_t address, uint8_t value);
+static uint8_t mmu_read_io(struct Mmu *mmu, uint16_t address);
 
 struct Mmu *mmu_create(struct Gameboy *gb)
 {
@@ -25,12 +25,12 @@ struct Mmu *mmu_create(struct Gameboy *gb)
     mmu->gb = gb;
 
 #if TESTS_ENABLED
-    mmu->memory = malloc(sizeof(u8) * 0x10000);
+    mmu->memory = malloc(sizeof(uint8_t) * 0x10000);
 #else
-    mmu->wram = calloc(1, sizeof(u8) * 0x2000);
-    mmu->oam = malloc(sizeof(u8) * 0xa0);
-    mmu->io = malloc(sizeof(u8) * 0x80);
-    mmu->hram = calloc(1, sizeof(u8) * 0x7f);
+    mmu->wram = calloc(1, sizeof(uint8_t) * 0x2000);
+    mmu->oam = malloc(sizeof(uint8_t) * 0xa0);
+    mmu->io = malloc(sizeof(uint8_t) * 0x80);
+    mmu->hram = calloc(1, sizeof(uint8_t) * 0x7f);
 #endif
 
     return mmu;
@@ -50,7 +50,7 @@ void mmu_destroy(struct Mmu *mmu)
     free(mmu);
 }
 
-void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
+void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 {
 #if TESTS_ENABLED
     mmu->memory[address] = value;
@@ -100,7 +100,7 @@ void mmu_write(struct Mmu *mmu, const u16 address, const u8 value)
 #endif
 }
 
-u8 mmu_read(struct Mmu *mmu, const u16 address)
+uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 {
 #if TESTS_ENABLED
     return mmu->memory[address];
@@ -146,7 +146,7 @@ u8 mmu_read(struct Mmu *mmu, const u16 address)
 }
 
 #if !TESTS_ENABLED
-static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
+static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 {
     struct Cpu *cpu = mmu->gb->cpu;
     struct Ppu *ppu = mmu->gb->ppu;
@@ -180,7 +180,7 @@ static void mmu_write_io(struct Mmu *mmu, const u16 address, const u8 value)
     }
 }
 
-static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
+static uint8_t mmu_read_io(struct Mmu *mmu, const uint16_t address)
 {
     const struct Cpu *cpu = mmu->gb->cpu;
     const struct Ppu *ppu = mmu->gb->ppu;

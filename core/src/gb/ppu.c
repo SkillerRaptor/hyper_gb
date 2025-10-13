@@ -20,7 +20,7 @@ struct Ppu *ppu_create(struct Gameboy *gb)
 {
     struct Ppu *ppu = malloc(sizeof(struct Ppu));
     ppu->gb = gb;
-    ppu->vram = calloc(1, sizeof(u8) * 0x2000);
+    ppu->vram = calloc(1, sizeof(uint8_t) * 0x2000);
     ppu->lcd_control = 0;
     ppu->lcd_status = 0;
     ppu->scy = 0;
@@ -44,7 +44,7 @@ void ppu_destroy(struct Ppu *ppu)
     free(ppu);
 }
 
-void ppu_tick(struct Ppu *ppu, const u8 t_cycles)
+void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
 {
     ppu->dots_counter += t_cycles;
 

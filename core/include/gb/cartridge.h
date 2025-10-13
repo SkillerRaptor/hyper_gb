@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "gb/types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -15,7 +15,7 @@ extern "C"
 
 struct Cartridge
 {
-    u8 *data;
+    uint8_t *data;
 };
 
 struct Cartridge *cartridge_create(const char *rom);

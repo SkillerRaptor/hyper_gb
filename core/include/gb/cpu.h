@@ -7,9 +7,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "gb/prerequisites.h"
-#include "gb/types.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -25,14 +25,14 @@ struct Registers
         struct
         {
 #if LITTLE_ENDIAN
-            u8 f;
-            u8 a;
+            uint8_t f;
+            uint8_t a;
 #else
-            u8 a;
-            u8 f;
+            uint8_t a;
+            uint8_t f;
 #endif
         };
-        u16 af;
+        uint16_t af;
     };
 
     union
@@ -40,14 +40,14 @@ struct Registers
         struct
         {
 #if LITTLE_ENDIAN
-            u8 c;
-            u8 b;
+            uint8_t c;
+            uint8_t b;
 #else
-            u8 b;
-            u8 c;
+            uint8_t b;
+            uint8_t c;
 #endif
         };
-        u16 bc;
+        uint16_t bc;
     };
 
     union
@@ -55,14 +55,14 @@ struct Registers
         struct
         {
 #if LITTLE_ENDIAN
-            u8 e;
-            u8 d;
+            uint8_t e;
+            uint8_t d;
 #else
-            u8 d;
-            u8 e;
+            uint8_t d;
+            uint8_t e;
 #endif
         };
-        u16 de;
+        uint16_t de;
     };
 
     union
@@ -70,18 +70,18 @@ struct Registers
         struct
         {
 #if LITTLE_ENDIAN
-            u8 l;
-            u8 h;
+            uint8_t l;
+            uint8_t h;
 #else
-            u8 h;
-            u8 l;
+            uint8_t h;
+            uint8_t l;
 #endif
         };
-        u16 hl;
+        uint16_t hl;
     };
 
-    u16 sp;
-    u16 pc;
+    uint16_t sp;
+    uint16_t pc;
 };
 
 enum Register8
@@ -138,19 +138,19 @@ struct Cpu
     struct Registers registers;
 
     bool interrupt_master_enable; // IME flag
-    u8 ime_delay;
+    uint8_t ime_delay;
 
-    u8 interrupt_enable; // IE
-    u8 interrupt_flag; // IF
+    uint8_t interrupt_enable; // IE
+    uint8_t interrupt_flag; // IF
 };
 
 struct Cpu *cpu_create(struct Gameboy *);
 void cpu_destroy(struct Cpu *);
 
-void cpu_set_register8(struct Cpu *, enum Register8, u8);
+void cpu_set_register8(struct Cpu *, enum Register8, uint8_t);
 uint8_t cpu_get_register8(struct Cpu *, enum Register8);
 
-void cpu_set_register16(struct Cpu *, enum Register16, u16);
+void cpu_set_register16(struct Cpu *, enum Register16, uint16_t);
 uint16_t cpu_get_register16(struct Cpu *, enum Register16);
 
 void cpu_set_flag(struct Cpu *, enum Flag, bool);
@@ -158,14 +158,14 @@ bool cpu_is_flag(struct Cpu *, enum Flag);
 
 bool cpu_is_condition(struct Cpu *, enum ConditionCode);
 
-void cpu_push_stack(struct Cpu *, u16);
-u16 cpu_pop_stack(struct Cpu *);
+void cpu_push_stack(struct Cpu *, uint16_t);
+uint16_t cpu_pop_stack(struct Cpu *);
 
-i8 cpu_fetch_i8(struct Cpu *cpu);
-u8 cpu_fetch_u8(struct Cpu *cpu);
-u16 cpu_fetch_u16(struct Cpu *cpu);
+int8_t cpu_fetch_i8(struct Cpu *cpu);
+uint8_t cpu_fetch_u8(struct Cpu *cpu);
+uint16_t cpu_fetch_u16(struct Cpu *cpu);
 
-u8 cpu_tick(struct Cpu *);
+uint8_t cpu_tick(struct Cpu *);
 
 #ifdef __cplusplus
 }

@@ -252,9 +252,9 @@ int main()
 
     igStyleColorsDark(NULL);
 
-    const u64 performance_frequency = SDL_GetPerformanceFrequency();
-    u64 last_frame_time = SDL_GetPerformanceCounter();
-    f64 lag = 0.0;
+    const uint64_t performance_frequency = SDL_GetPerformanceFrequency();
+    uint64_t last_frame_time = SDL_GetPerformanceCounter();
+    double lag = 0.0;
 
     bool should_exit = false;
     while (!should_exit)
@@ -271,8 +271,8 @@ int main()
             }
         }
 
-        const u64 now = SDL_GetPerformanceCounter();
-        const f64 elapsed = (f64) (now - last_frame_time) / (f64) performance_frequency;
+        const uint64_t now = SDL_GetPerformanceCounter();
+        const double elapsed = (double) (now - last_frame_time) / (double) performance_frequency;
         last_frame_time = now;
         lag += elapsed;
 
@@ -874,14 +874,14 @@ int main()
         SDL_RenderPresent(renderer);
 
         // Frame Pacing
-        const u64 target_time = last_frame_time + (u64) (GAMEBOY_FRAME_TIME * (f64) performance_frequency);
-        const u64 current = SDL_GetPerformanceCounter();
+        const uint64_t target_time = last_frame_time + (double) (GAMEBOY_FRAME_TIME * (double) performance_frequency);
+        const uint64_t current = SDL_GetPerformanceCounter();
         if (current < target_time)
         {
-            const f64 wait_seconds = (f64) (target_time - current) / (f64) performance_frequency;
+            const double wait_seconds = (double) (target_time - current) / (double) performance_frequency;
             if (wait_seconds > 0)
             {
-                SDL_Delay((u32) (wait_seconds * 1000.0));
+                SDL_Delay((uint32_t) (wait_seconds * 1000.0));
             }
         }
     }

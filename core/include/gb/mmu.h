@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "gb/types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -20,20 +20,20 @@ struct Mmu
     struct Gameboy *gb;
 
 #if TESTS_ENABLED
-    u8 *memory;
+    uint8_t *memory;
 #else
-    u8 *wram;
-    u8 *oam;
-    u8 *io;
-    u8 *hram;
+    uint8_t *wram;
+    uint8_t *oam;
+    uint8_t *io;
+    uint8_t *hram;
 #endif
 };
 
 struct Mmu *mmu_create(struct Gameboy *gb);
 void mmu_destroy(struct Mmu *);
 
-void mmu_write(struct Mmu *, u16 address, u8 value);
-u8 mmu_read(struct Mmu *, u16 address);
+void mmu_write(struct Mmu *, uint16_t address, uint8_t value);
+uint8_t mmu_read(struct Mmu *, uint16_t address);
 
 #ifdef __cplusplus
 }

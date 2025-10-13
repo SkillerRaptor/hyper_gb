@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "gb/types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -19,20 +19,20 @@ struct Timer
 {
     struct Gameboy *gb;
 
-    u16 div_counter;
-    u16 counter;
+    uint16_t div_counter;
+    uint16_t counter;
 
     // Registers
-    u8 div; // 0xff04 - Divider register
-    u8 tima; // 0xff05 - Timer counter
-    u8 tma; // 0xff06 - Timer modulo
-    u8 tac; // 0xff07 - Timer control
+    uint8_t div; // 0xff04 - Divider register
+    uint8_t tima; // 0xff05 - Timer counter
+    uint8_t tma; // 0xff06 - Timer modulo
+    uint8_t tac; // 0xff07 - Timer control
 };
 
 struct Timer *timer_create(struct Gameboy *);
 void timer_destroy(struct Timer *);
 
-void timer_tick(struct Timer *, u8 t_cycles);
+void timer_tick(struct Timer *, uint8_t t_cycles);
 
 #ifdef __cplusplus
 }
