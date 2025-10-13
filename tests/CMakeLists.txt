@@ -9,12 +9,12 @@ set(SOURCES
 set(HEADERS
 )
 
-add_executable(tests ${SOURCES} ${HEADERS})
-target_link_libraries(tests PRIVATE ProjectWarnings)
-target_include_directories(tests PUBLIC include)
+add_executable(gb_tests ${SOURCES} ${HEADERS})
+target_link_libraries(gb_tests PRIVATE ProjectWarnings)
+target_include_directories(gb_tests PUBLIC include)
 target_link_libraries(
-        tests
+        gb_tests
         PRIVATE
-        test_core
+        gb_test_core
         Catch2::Catch2WithMain
         nlohmann_json)

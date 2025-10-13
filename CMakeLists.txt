@@ -54,12 +54,12 @@ set(SOURCES
 set(HEADERS
 )
 
-add_executable(hyper_gb ${SOURCES} ${HEADERS})
-target_link_libraries(hyper_gb PRIVATE ProjectWarnings)
-target_include_directories(hyper_gb PRIVATE include)
+add_executable(gb_emu ${SOURCES} ${HEADERS})
+target_link_libraries(gb_emu PRIVATE ProjectWarnings)
+target_include_directories(gb_emu PRIVATE include)
 target_link_libraries(
-        hyper_gb
+        gb_emu
         PRIVATE
-        core
+        gb_core
         imgui
         SDL3::SDL3-static)

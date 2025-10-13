@@ -25,24 +25,24 @@ set(HEADERS
         include/timer.h
         include/types.h)
 
-add_library(core STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(core PRIVATE ProjectWarnings)
-target_include_directories(core PUBLIC include)
+add_library(gb_core STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(gb_core PRIVATE ProjectWarnings)
+target_include_directories(gb_core PUBLIC include)
 
-add_library(test_core STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(test_core PRIVATE ProjectWarnings)
-target_compile_definitions(test_core PRIVATE -DTESTS_ENABLED)
-target_include_directories(test_core PUBLIC include)
+add_library(gb_test_core STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(gb_test_core PRIVATE ProjectWarnings)
+target_compile_definitions(gb_test_core PRIVATE -DTESTS_ENABLED)
+target_include_directories(gb_test_core PUBLIC include)
 
 if (WIN32)
     target_compile_definitions(
-            core
+            gb_core
             PRIVATE
             _CRT_SECURE_NO_WARNINGS
             NOMINMAX
             WIN32_LEAN_AND_MEAN)
     target_compile_definitions(
-            test_core
+            gb_test_core
             PRIVATE
             _CRT_SECURE_NO_WARNINGS
             NOMINMAX
