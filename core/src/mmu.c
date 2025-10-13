@@ -188,7 +188,7 @@ static u8 mmu_read_io(struct Mmu *mmu, const u16 address)
 
     switch (address)
     {
-    // case 0xff00: return 0xff;
+    case 0xff00: return 0xff;
     case 0xff04: return timer->div;
     case 0xff05: return timer->tima;
     case 0xff06: return timer->tma;

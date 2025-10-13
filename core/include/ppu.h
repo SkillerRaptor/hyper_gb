@@ -13,14 +13,21 @@ extern "C"
 {
 #endif
 
-#define VSYNC_FRAME_RATE 59.73
-
 struct Gameboy;
+
+enum PpuMode
+{
+    PPU_MODE_OAM_SCAN,
+    PPU_MODE_DRAWING,
+    PPU_MODE_H_BLANK,
+    PPU_MODE_V_BLANK,
+};
 
 struct Ppu
 {
     struct Gameboy *gb;
 
+    // Memory
     u8 *vram;
 
     // Registers
@@ -35,6 +42,10 @@ struct Ppu
     u8 obp1; // 0xff49 - OBJ palette 1 data
     u8 wy; // 0xff4a - Window Y position
     u8 wx; // 0xff4b - Window X position plus 7
+
+    // Others
+    u16 dots_counter;
+    enum PpuMode mode;
 };
 
 struct Ppu *ppu_create(struct Gameboy *);

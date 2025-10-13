@@ -11,6 +11,10 @@ extern "C"
 {
 #endif
 
+#define CHECK_BIT(value, bit) ((value & (1 << (bit))) != 0)
+#define SET_BIT(value, bit) (value | (1 << (bit)))
+#define CLEAR_BIT(value, bit) (value & ~(1 << (bit)))
+
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #    define LITTLE_ENDIAN 1
 #    define BIG_ENDIAN 0

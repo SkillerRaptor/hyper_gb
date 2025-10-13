@@ -513,11 +513,6 @@ u8 cpu_xor_a_n8(struct Cpu *cpu)
 }
 
 // Bit flag instructions
-
-#define CHECK_BIT(value, bit) ((value & (1 << (bit))) != 0)
-#define SET_BIT(value, bit) (value | (1 << (bit)))
-#define CLEAR_BIT(value, bit) (value & ~(1 << (bit)))
-
 static void cpu_bit_u3(struct Cpu *cpu, const u8 bit, const u8 value)
 {
     const bool is_zero = !CHECK_BIT(value, bit);

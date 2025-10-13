@@ -8,6 +8,14 @@
 
 #include <stdlib.h>
 
+#include "logger.h"
+#include "prerequisites.h"
+
+#define PPU_MODE_OAM_SCAN_DOTS 80
+#define PPU_MODE_DRAWING_DOTS 289
+#define PPU_MODE_H_BLANK_DOTS 204
+#define PPU_MODE_V_BLANK_DOTS 4560
+
 struct Ppu *ppu_create(struct Gameboy *gb)
 {
     struct Ppu *ppu = malloc(sizeof(struct Ppu));
@@ -24,6 +32,8 @@ struct Ppu *ppu_create(struct Gameboy *gb)
     ppu->obp1 = 0;
     ppu->wy = 0;
     ppu->wx = 0;
+    ppu->dots_counter = 0;
+    ppu->mode = PPU_MODE_OAM_SCAN;
 
     return ppu;
 }
@@ -36,6 +46,54 @@ void ppu_destroy(struct Ppu *ppu)
 
 void ppu_tick(struct Ppu *ppu, const u8 t_cycles)
 {
-    // Increase dots by t-cycles
-    // If dots is higher than 456, than -456 and increase ly
+    ppu->dots_counter += t_cycles;
+
+    switch (ppu->mode)
+    {
+    case PPU_MODE_OAM_SCAN:
+        if (ppu->dots_counter >= PPU_MODE_OAM_SCAN_DOTS)
+        {
+            ppu->dots_counter -= PPU_MODE_OAM_SCAN_DOTS;
+            ppu->mode = PPU_MODE_DRAWING;
+        }
+        break;
+    case PPU_MODE_DRAWING:
+        if (ppu->dots_counter >= PPU_MODE_DRAWING_DOTS)
+        {
+            ppu->dots_counter -= PPU_MODE_DRAWING_DOTS;
+            ppu->mode = PPU_MODE_H_BLANK;
+        }
+        break;
+    case PPU_MODE_H_BLANK:
+        if (ppu->dots_counter >= PPU_MODE_H_BLANK_DOTS)
+        {
+            ppu->dots_counter -= PPU_MODE_H_BLANK_DOTS;
+
+            ppu->ly += 1;
+
+            if (ppu->ly >= 0x90)
+            {
+                ppu->mode = PPU_MODE_V_BLANK;
+            }
+            else
+            {
+                ppu->mode = PPU_MODE_OAM_SCAN;
+            }
+        }
+        break;
+    case PPU_MODE_V_BLANK:
+        if (ppu->dots_counter >= PPU_MODE_V_BLANK_DOTS)
+        {
+            ppu->dots_counter -= PPU_MODE_V_BLANK_DOTS;
+
+            ppu->ly += 1;
+
+            if (ppu->ly >= 0x9a)
+            {
+                ppu->mode = PPU_MODE_OAM_SCAN;
+            }
+        }
+        break;
+    default: break;
+    }
 }
