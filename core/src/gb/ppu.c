@@ -8,8 +8,8 @@
 
 #include <stdlib.h>
 
-#include "gb/logger.h"
 #include "gb/prerequisites.h"
+#include "gb/utils/logger.h"
 
 #define PPU_MODE_OAM_SCAN_DOTS 80
 #define PPU_MODE_DRAWING_DOTS 289

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "gb/logger.h"
+#include "gb/utils/logger.h"
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -34,7 +34,7 @@ static const char *s_log_level_strings[LOG_LEVEL_LENGTH] = {
     [LOG_LEVEL_DEBUG] = "debug",
 };
 
-static void logger_vlog(const enum LogLevel level, const char *fmt, va_list args)
+static void logger_vlog(const enum LogLevel level, const char *fmt, const va_list args)
 {
     time_t current_time;
     time(&current_time);
@@ -57,7 +57,7 @@ static void logger_vlog(const enum LogLevel level, const char *fmt, va_list args
     printf("\n");
 }
 
-void logger_info(const char *fmt, ...)
+void gb_logger_info(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -65,7 +65,7 @@ void logger_info(const char *fmt, ...)
     va_end(args);
 }
 
-void logger_warn(const char *fmt, ...)
+void gb_logger_warn(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -73,7 +73,7 @@ void logger_warn(const char *fmt, ...)
     va_end(args);
 }
 
-void logger_err(const char *fmt, ...)
+void gb_logger_err(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -81,7 +81,7 @@ void logger_err(const char *fmt, ...)
     va_end(args);
 }
 
-void logger_dbg(const char *fmt, ...)
+void gb_logger_dbg(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

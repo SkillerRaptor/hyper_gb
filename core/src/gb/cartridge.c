@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gb/logger.h"
+#include "gb/utils/logger.h"
 
 struct Cartridge *cartridge_create(const char *rom)
 {
@@ -21,7 +21,7 @@ struct Cartridge *cartridge_create(const char *rom)
     FILE *file = fopen(rom, "rb");
     if (file == NULL)
     {
-        logger_err("Failed to open rom file");
+        gb_logger_err("Failed to open rom file");
         free(cartridge);
         return NULL;
     }
@@ -31,7 +31,7 @@ struct Cartridge *cartridge_create(const char *rom)
     const size_t file_size = ftell(file);
     if (file_size == 0)
     {
-        logger_err("Failed to get size of rom file");
+        gb_logger_err("Failed to get size of rom file");
         fclose(file);
         free(cartridge);
         return NULL;
@@ -44,7 +44,7 @@ struct Cartridge *cartridge_create(const char *rom)
     const size_t read_size = fread(cartridge->data, sizeof(uint8_t), file_size, file);
     if (read_size != file_size)
     {
-        logger_err("Failed to read rom file");
+        gb_logger_err("Failed to read rom file");
         fclose(file);
         free(cartridge);
         return NULL;

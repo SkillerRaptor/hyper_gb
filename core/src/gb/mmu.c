@@ -12,9 +12,9 @@
 #include "gb/cartridge.h"
 #include "gb/cpu.h"
 #include "gb/gameboy.h"
-#include "gb/logger.h"
 #include "gb/ppu.h"
 #include "gb/timer.h"
+#include "gb/utils/logger.h"
 
 static void mmu_write_io(struct Mmu *mmu, uint16_t address, uint8_t value);
 static uint8_t mmu_read_io(struct Mmu *mmu, uint16_t address);
@@ -28,8 +28,8 @@ struct Mmu *mmu_create(struct Gameboy *gb)
     mmu->memory = malloc(sizeof(uint8_t) * 0x10000);
 #else
     mmu->wram = calloc(1, sizeof(uint8_t) * 0x2000);
-    mmu->oam = malloc(sizeof(uint8_t) * 0xa0);
-    mmu->io = malloc(sizeof(uint8_t) * 0x80);
+    mmu->oam = calloc(1, sizeof(uint8_t) * 0xa0);
+    mmu->io = calloc(1, sizeof(uint8_t) * 0x80);
     mmu->hram = calloc(1, sizeof(uint8_t) * 0x7f);
 #endif
 
@@ -96,7 +96,7 @@ void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
         return;
     }
 
-    logger_warn("Unhandled write at 0x%04x with 0x%02x", address, value);
+    gb_logger_warn("Unhandled write at 0x%04x with 0x%02x", address, value);
 #endif
 }
 
@@ -167,7 +167,7 @@ static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t 
     case 0xff43: ppu->scx = value; break;
     case 0xff44: ppu->ly = 0x00; break; // Write will cause to reset
     case 0xff45: ppu->lyc = value; break;
-    case 0xff46: logger_warn("Attempted to start DMA transfer"); break;
+    case 0xff46: gb_logger_warn("Attempted to start DMA transfer"); break;
     case 0xff47: ppu->bgp = value; break;
     case 0xff48: ppu->obp0 = value; break;
     case 0xff49: ppu->obp1 = value; break;
@@ -175,7 +175,7 @@ static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t 
     case 0xff4b: ppu->wx = value; break;
     default:
         mmu->io[address - 0xff00] = value;
-        logger_warn("Unhandled I/O-write at 0x%04x with 0x%02x", address, value);
+        gb_logger_warn("Unhandled I/O-write at 0x%04x with 0x%02x", address, value);
         break;
     }
 }
@@ -200,13 +200,13 @@ static uint8_t mmu_read_io(struct Mmu *mmu, const uint16_t address)
     case 0xff43: return ppu->scx;
     case 0xff44: return ppu->ly;
     case 0xff45: return ppu->lyc;
-    case 0xff46: logger_warn("Attempted to read from write-only DMA register"); return 0xff;
+    case 0xff46: gb_logger_warn("Attempted to read from write-only DMA register"); return 0xff;
     case 0xff47: return ppu->bgp;
     case 0xff48: return ppu->obp0;
     case 0xff49: return ppu->obp1;
     case 0xff4a: return ppu->wy;
     case 0xff4b: return ppu->wx;
-    default: logger_warn("Unhandled I/O-Read at 0x%04x", address); return mmu->io[address - 0xff00];
+    default: gb_logger_warn("Unhandled I/O-Read at 0x%04x", address); return mmu->io[address - 0xff00];
     }
 }
 #endif

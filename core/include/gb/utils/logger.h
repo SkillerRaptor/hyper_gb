@@ -11,10 +11,10 @@ extern "C"
 {
 #endif
 
-void logger_info(const char *fmt, ...);
-void logger_warn(const char *fmt, ...);
-void logger_err(const char *fmt, ...);
-void logger_dbg(const char *fmt, ...);
+void gb_logger_info(const char *fmt, ...);
+void gb_logger_warn(const char *fmt, ...);
+void gb_logger_err(const char *fmt, ...);
+void gb_logger_dbg(const char *fmt, ...);
 
 #ifdef __cplusplus
 }

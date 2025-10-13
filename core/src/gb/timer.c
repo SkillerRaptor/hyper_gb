@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #include "gb/gameboy.h"
-#include "gb/logger.h"
+#include "gb/utils/logger.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
 #define GAMEBOY_DIVIDER_HZ 16384.0
@@ -62,7 +62,7 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
         if (timer->tima == 0)
         {
             timer->tima = timer->tma;
-            logger_warn("Unimplemented interrupt trigger");
+            gb_logger_warn("Unimplemented interrupt trigger");
         }
     }
 }

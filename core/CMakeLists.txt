@@ -8,23 +8,22 @@ set(SOURCES
         src/gb/cpu.c
         src/gb/cpu_instructions.c
         src/gb/gameboy.c
-        src/gb/logger.c
         src/gb/mmu.c
         src/gb/ppu.c
-        src/gb/timer.c)
+        src/gb/timer.c
+        src/gb/utils/logger.c)
 
 set(HEADERS
         include/gb/cartridge.h
         include/gb/cpu.h
         include/gb/cpu_instructions.h
         include/gb/gameboy.h
-        include/gb/logger.h
         include/gb/mmu.h
         include/gb/ppu.h
         include/gb/prerequisites.h
         include/gb/timer.h
-        include/gb/types.h
-        include/gb/utils/bits.h)
+        include/gb/utils/bits.h
+        include/gb/utils/logger.h)
 
 add_library(gb_core STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(gb_core PRIVATE ProjectWarnings)
