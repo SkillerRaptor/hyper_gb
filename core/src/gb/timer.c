@@ -9,8 +9,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "gb/cpu.h"
 #include "gb/definitions.h"
 #include "gb/gameboy.h"
+#include "gb/utils/bits.h"
 #include "gb/utils/logger.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
@@ -63,7 +65,7 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
         if (timer->tima == 0)
         {
             timer->tima = timer->tma;
-            gb_logger_warn("Unimplemented interrupt trigger");
+            GB_BIT_SET(timer->gb->cpu->interrupt_flag, 2);
         }
     }
 }

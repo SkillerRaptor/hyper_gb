@@ -12,6 +12,7 @@
 #include "gb/cpu_instructions.h"
 #include "gb/gameboy.h"
 #include "gb/mmu.h"
+#include "gb/utils/bits.h"
 #include "gb/utils/logger.h"
 
 static uint8_t cpu_execute_opcode(struct Cpu *cpu, uint8_t opcode);
@@ -168,8 +169,93 @@ uint16_t cpu_fetch_u16(struct Cpu *cpu)
     return (higher_byte << 8) | lower_byte;
 }
 
+static void cpu_handle_interrupts(struct Cpu *cpu)
+{
+    const uint8_t fired_interrupts = cpu->interrupt_flag & cpu->interrupt_enable;
+    if (!fired_interrupts)
+    {
+        return;
+    }
+
+    if (!cpu->interrupt_master_enable)
+    {
+        return;
+    }
+
+    cpu_push_stack(cpu, cpu->registers.pc);
+
+    bool handled_interrupt = false;
+    if (GB_BIT_CHECK(fired_interrupts, 0))
+    {
+        GB_BIT_CLEAR(cpu->interrupt_flag, 0);
+        cpu->registers.pc = 0x40;
+        cpu->interrupt_master_enable = false;
+        handled_interrupt = true;
+    }
+
+    if (handled_interrupt)
+    {
+        return;
+    }
+
+    if (GB_BIT_CHECK(fired_interrupts, 1))
+    {
+        GB_BIT_CLEAR(cpu->interrupt_flag, 1);
+        cpu->registers.pc = 0x48;
+        cpu->interrupt_master_enable = false;
+        handled_interrupt = true;
+    }
+
+    if (handled_interrupt)
+    {
+        return;
+    }
+
+    if (GB_BIT_CHECK(fired_interrupts, 2))
+    {
+        GB_BIT_CLEAR(cpu->interrupt_flag, 2);
+        cpu->registers.pc = 0x50;
+        cpu->interrupt_master_enable = false;
+        handled_interrupt = true;
+    }
+
+    if (handled_interrupt)
+    {
+        return;
+    }
+
+    if (GB_BIT_CHECK(fired_interrupts, 3))
+    {
+        GB_BIT_CLEAR(cpu->interrupt_flag, 3);
+        cpu->registers.pc = 0x58;
+        cpu->interrupt_master_enable = false;
+        handled_interrupt = true;
+    }
+
+    if (handled_interrupt)
+    {
+        return;
+    }
+
+    if (GB_BIT_CHECK(fired_interrupts, 4))
+    {
+        GB_BIT_CLEAR(cpu->interrupt_flag, 4);
+        cpu->registers.pc = 0x60;
+        cpu->interrupt_master_enable = false;
+        handled_interrupt = true;
+    }
+
+    if (handled_interrupt)
+    {
+        return;
+    }
+}
+
 uint8_t cpu_tick(struct Cpu *cpu)
 {
+    // Handle Interrupts
+    cpu_handle_interrupts(cpu);
+
     if (cpu->ime_delay > 0)
     {
         cpu->ime_delay -= 1;

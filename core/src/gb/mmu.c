@@ -66,7 +66,18 @@ void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
         return;
     }
 
+    if (address >= 0xa000 && address <= 0xbfff)
+    {
+        return;
+    }
+
     if (address >= 0xc000 && address <= 0xdfff)
+    {
+        mmu->wram[address - 0xc000] = value;
+        return;
+    }
+
+    if (address >= 0xe000 && address <= 0xfdff)
     {
         mmu->wram[address - 0xc000] = value;
         return;
@@ -116,7 +127,17 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
         return mmu->gb->ppu->vram[address - 0x8000];
     }
 
+    if (address >= 0xa000 && address <= 0xbfff)
+    {
+        return mmu->gb->cartridge->data[address - 0xa000];
+    }
+
     if (address >= 0xc000 && address <= 0xdfff)
+    {
+        return mmu->wram[address - 0xc000];
+    }
+
+    if (address >= 0xe000 && address <= 0xfdff)
     {
         return mmu->wram[address - 0xc000];
     }

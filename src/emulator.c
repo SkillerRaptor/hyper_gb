@@ -285,7 +285,32 @@ void emulator_render_textures(struct Emulator *emulator)
     emulator_render_oam_texture(emulator);
 }
 
-void emulator_render_game_screen_texture(struct Emulator *emulator) {}
+void emulator_render_game_screen_texture(struct Emulator *emulator)
+{
+    int pitch = 0;
+    void *pixels_ptr = NULL;
+    SDL_LockTexture(emulator->game_screen_texture, NULL, &pixels_ptr, &pitch);
+
+    uint32_t *pixels = pixels_ptr;
+    for (uint32_t i = 0; i < GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT; ++i)
+    {
+        const enum Color color_enum = emulator->gb->ppu->screen[i];
+
+        uint32_t color = 0xff000000;
+        switch (color_enum)
+        {
+        case COLOR_WHITE: color = 0xff000000; break;
+        case COLOR_LIGHT_GRAY: color = 0xff555555; break;
+        case COLOR_DARK_GRAY: color = 0xffaaaaaa; break;
+        case COLOR_BLACK: color = 0xffffffff; break;
+        default: break;
+        }
+
+        pixels[i] = color;
+    }
+
+    SDL_UnlockTexture(emulator->game_screen_texture);
+}
 
 void render_tile(const uint32_t x,
     const uint32_t y,

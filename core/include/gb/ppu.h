@@ -15,6 +15,14 @@ extern "C"
 
 struct Gameboy;
 
+enum Color
+{
+    COLOR_WHITE = 0,
+    COLOR_LIGHT_GRAY,
+    COLOR_DARK_GRAY,
+    COLOR_BLACK,
+};
+
 enum PpuMode
 {
     PPU_MODE_OAM_SCAN,
@@ -46,6 +54,8 @@ struct Ppu
     // Others
     uint16_t dots_counter;
     enum PpuMode mode;
+
+    enum Color *screen;
 };
 
 struct Ppu *ppu_create(struct Gameboy *);

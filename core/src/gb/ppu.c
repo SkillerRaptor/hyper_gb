@@ -8,7 +8,12 @@
 
 #include <stdlib.h>
 
+#include "gb/cpu.h"
+#include "gb/definitions.h"
+#include "gb/gameboy.h"
+#include "gb/mmu.h"
 #include "gb/prerequisites.h"
+#include "gb/utils/bits.h"
 #include "gb/utils/logger.h"
 
 #define PPU_MODE_OAM_SCAN_DOTS 80
@@ -34,12 +39,14 @@ struct Ppu *ppu_create(struct Gameboy *gb)
     ppu->wx = 0;
     ppu->dots_counter = 0;
     ppu->mode = PPU_MODE_OAM_SCAN;
+    ppu->screen = calloc(1, sizeof(enum Color) * GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT);
 
     return ppu;
 }
 
 void ppu_destroy(struct Ppu *ppu)
 {
+    free(ppu->screen);
     free(ppu->vram);
     free(ppu);
 }
@@ -62,6 +69,66 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
         {
             ppu->dots_counter -= PPU_MODE_DRAWING_DOTS;
             ppu->mode = PPU_MODE_H_BLANK;
+
+            bool hblank_interrupt = GB_BIT_CHECK(ppu->lcd_status, 3);
+            if (hblank_interrupt)
+            {
+                GB_BIT_SET(ppu->gb->cpu->interrupt_flag, 1);
+            }
+
+            // Draw Scanline
+
+            // Draw Background
+
+            if (GB_BIT_CHECK(ppu->lcd_control, 0))
+            {
+                const uint32_t tile_set_address = GB_BIT_CHECK(ppu->lcd_control, 4) ? 0x8000 : 0x8800;
+                const uint32_t tile_map_address = (!GB_BIT_CHECK(ppu->lcd_control, 3)) ? 0x9800 : 0x9c00;
+
+                const uint32_t y = ppu->ly;
+                for (uint32_t x = 0; x < GB_SCREEN_WIDTH; ++x)
+                {
+                    const uint32_t scrolled_x = x + ppu->scx;
+                    const uint32_t scrolled_y = y + ppu->scy;
+
+                    const uint32_t background_map_x = scrolled_x % 256;
+                    const uint32_t background_map_y = scrolled_y % 256;
+
+                    const uint32_t tile_x = background_map_x / GB_TILE_SIZE;
+                    const uint32_t tile_y = background_map_y / GB_TILE_SIZE;
+
+                    const uint32_t tile_pixel_x = background_map_x % GB_TILE_SIZE;
+                    const uint32_t tile_pixel_y = background_map_y % GB_TILE_SIZE;
+
+                    // This number is from the tile map
+#define TILES_PER_LINE 32
+                    const uint32_t tile_index = tile_y * TILES_PER_LINE + tile_x;
+                    const uint32_t tile_id_address = tile_map_address + tile_index;
+
+                    const uint8_t tile_id = mmu_read(ppu->gb->mmu, tile_id_address);
+
+#define TILE_BYTES (2 * 8)
+                    const uint32_t tile_data_memory_offset = GB_BIT_CHECK(ppu->lcd_control, 4)
+                        ? (tile_id * TILE_BYTES)
+                        : ((((int8_t) tile_id) + 128) * TILE_BYTES);
+                    const uint32_t tile_data_line_offset = tile_pixel_y * 2;
+
+                    const uint32_t tile_line_data_start_address
+                        = tile_set_address + tile_data_memory_offset + tile_data_line_offset;
+
+                    const uint8_t pixels_1 = mmu_read(ppu->gb->mmu, tile_line_data_start_address);
+                    const uint8_t pixels_2 = mmu_read(ppu->gb->mmu, tile_line_data_start_address + 1);
+
+                    const uint8_t color
+                        = (GB_BIT_VALUE(pixels_2, 7 - tile_pixel_x) << 1) | GB_BIT_VALUE(pixels_1, 7 - tile_pixel_x);
+                    ppu->screen[y * GB_SCREEN_WIDTH + x] = (enum Color) color;
+                }
+            }
+
+            // Draw Window
+            if (GB_BIT_CHECK(ppu->lcd_control, 5))
+            {
+            }
         }
         break;
     case PPU_MODE_H_BLANK:
@@ -74,6 +141,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
             if (ppu->ly >= 0x90)
             {
                 ppu->mode = PPU_MODE_V_BLANK;
+                GB_BIT_SET(ppu->gb->cpu->interrupt_flag, 0);
             }
             else
             {
@@ -91,6 +159,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
             if (ppu->ly >= 0x9a)
             {
                 ppu->mode = PPU_MODE_OAM_SCAN;
+                ppu->ly = 0;
             }
         }
         break;
