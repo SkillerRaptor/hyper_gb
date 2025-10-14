@@ -15,12 +15,12 @@
 #include "gb/timer.h"
 #include "gb/utils/log.h"
 
-static void mmu_write_io(struct Mmu *mmu, uint16_t address, uint8_t value);
-static uint8_t mmu_read_io(struct Mmu *mmu, uint16_t address);
+static void mmu_write_io(struct GbMmu *mmu, uint16_t address, uint8_t value);
+static uint8_t mmu_read_io(struct GbMmu *mmu, uint16_t address);
 
-struct Mmu *mmu_create()
+struct GbMmu *gb_mmu_create()
 {
-    struct Mmu *mmu = malloc(sizeof(struct Mmu));
+    struct GbMmu *mmu = malloc(sizeof(struct GbMmu));
     mmu->cartridge = NULL;
     mmu->cpu = NULL;
     mmu->ppu = NULL;
@@ -38,7 +38,7 @@ struct Mmu *mmu_create()
     return mmu;
 }
 
-void mmu_destroy(struct Mmu *mmu)
+void gb_mmu_destroy(struct GbMmu *mmu)
 {
 #if TESTS_ENABLED
     free(mmu->memory);
@@ -52,14 +52,14 @@ void mmu_destroy(struct Mmu *mmu)
     free(mmu);
 }
 
-void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
+void gb_mmu_write(struct GbMmu *mmu, const uint16_t address, const uint8_t value)
 {
 #if TESTS_ENABLED
     mmu->memory[address] = value;
 #else
     if (address <= 0x7fff)
     {
-        cartridge_write(mmu->cartridge, address, value);
+        gb_cartridge_write(mmu->cartridge, address, value);
         return;
     }
 
@@ -109,7 +109,7 @@ void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 #endif
 }
 
-uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
+uint8_t gb_mmu_read(struct GbMmu *mmu, const uint16_t address)
 {
 #if TESTS_ENABLED
     return mmu->memory[address];
@@ -117,7 +117,7 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 
     if (address <= 0x7fff)
     {
-        return cartridge_read(mmu->cartridge, address);
+        return gb_cartridge_read(mmu->cartridge, address);
     }
 
     if (address >= 0x8000 && address <= 0x9fff)
@@ -160,7 +160,7 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 }
 
 #if !TESTS_ENABLED
-static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t value)
+static void mmu_write_io(struct GbMmu *mmu, const uint16_t address, const uint8_t value)
 {
     switch (address)
     {
@@ -190,7 +190,7 @@ static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t 
     }
 }
 
-static uint8_t mmu_read_io(struct Mmu *mmu, const uint16_t address)
+static uint8_t mmu_read_io(struct GbMmu *mmu, const uint16_t address)
 {
     switch (address)
     {

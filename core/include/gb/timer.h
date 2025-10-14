@@ -13,11 +13,11 @@ extern "C"
 {
 #endif
 
-struct Cpu;
+struct GbCpu;
 
-struct Timer
+struct GbTimer
 {
-    struct Cpu *cpu;
+    struct GbCpu *cpu;
 
     uint16_t div_counter;
     uint16_t counter;
@@ -29,10 +29,10 @@ struct Timer
     uint8_t tac; // 0xff07 - Timer control
 };
 
-struct Timer *timer_create();
-void timer_destroy(struct Timer *);
+struct GbTimer *gb_timer_create();
+void gb_timer_destroy(struct GbTimer *);
 
-void timer_tick(struct Timer *, uint8_t t_cycles);
+void gb_timer_tick(struct GbTimer *, uint8_t t_cycles);
 
 #ifdef __cplusplus
 }

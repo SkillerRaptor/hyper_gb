@@ -19,9 +19,9 @@
 #define PPU_MODE_H_BLANK_DOTS 204
 #define PPU_MODE_V_BLANK_DOTS 4560
 
-struct Ppu *ppu_create()
+struct GbPpu *gb_ppu_create()
 {
-    struct Ppu *ppu = malloc(sizeof(struct Ppu));
+    struct GbPpu *ppu = malloc(sizeof(struct GbPpu));
     ppu->mmu = NULL;
     ppu->cpu = NULL;
     ppu->vram = calloc(1, sizeof(uint8_t) * 0x2000);
@@ -37,37 +37,37 @@ struct Ppu *ppu_create()
     ppu->wy = 0;
     ppu->wx = 0;
     ppu->dots_counter = 0;
-    ppu->mode = PPU_MODE_OAM_SCAN;
-    ppu->screen = calloc(1, sizeof(enum Color) * GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT);
+    ppu->mode = GB_PPU_MODE_OAM_SCAN;
+    ppu->screen = calloc(1, sizeof(enum GbColor) * GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT);
 
     return ppu;
 }
 
-void ppu_destroy(struct Ppu *ppu)
+void gb_ppu_destroy(struct GbPpu *ppu)
 {
     free(ppu->screen);
     free(ppu->vram);
     free(ppu);
 }
 
-void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
+void gb_ppu_tick(struct GbPpu *ppu, const uint8_t t_cycles)
 {
     ppu->dots_counter += t_cycles;
 
     switch (ppu->mode)
     {
-    case PPU_MODE_OAM_SCAN:
+    case GB_PPU_MODE_OAM_SCAN:
         if (ppu->dots_counter >= PPU_MODE_OAM_SCAN_DOTS)
         {
             ppu->dots_counter -= PPU_MODE_OAM_SCAN_DOTS;
-            ppu->mode = PPU_MODE_DRAWING;
+            ppu->mode = GB_PPU_MODE_DRAWING;
         }
         break;
-    case PPU_MODE_DRAWING:
+    case GB_PPU_MODE_DRAWING:
         if (ppu->dots_counter >= PPU_MODE_DRAWING_DOTS)
         {
             ppu->dots_counter -= PPU_MODE_DRAWING_DOTS;
-            ppu->mode = PPU_MODE_H_BLANK;
+            ppu->mode = GB_PPU_MODE_H_BLANK;
 
             bool hblank_interrupt = GB_BIT_CHECK(ppu->lcd_status, 3);
             if (hblank_interrupt)
@@ -104,7 +104,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
                     const uint32_t tile_index = tile_y * TILES_PER_LINE + tile_x;
                     const uint32_t tile_id_address = tile_map_address + tile_index;
 
-                    const uint8_t tile_id = mmu_read(ppu->mmu, tile_id_address);
+                    const uint8_t tile_id = gb_mmu_read(ppu->mmu, tile_id_address);
 
 #define TILE_BYTES (2 * 8)
                     const uint32_t tile_data_memory_offset = GB_BIT_CHECK(ppu->lcd_control, 4)
@@ -115,12 +115,12 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
                     const uint32_t tile_line_data_start_address
                         = tile_set_address + tile_data_memory_offset + tile_data_line_offset;
 
-                    const uint8_t pixels_1 = mmu_read(ppu->mmu, tile_line_data_start_address);
-                    const uint8_t pixels_2 = mmu_read(ppu->mmu, tile_line_data_start_address + 1);
+                    const uint8_t pixels_1 = gb_mmu_read(ppu->mmu, tile_line_data_start_address);
+                    const uint8_t pixels_2 = gb_mmu_read(ppu->mmu, tile_line_data_start_address + 1);
 
                     const uint8_t color
                         = (GB_BIT_VALUE(pixels_2, 7 - tile_pixel_x) << 1) | GB_BIT_VALUE(pixels_1, 7 - tile_pixel_x);
-                    ppu->screen[y * GB_SCREEN_WIDTH + x] = (enum Color) color;
+                    ppu->screen[y * GB_SCREEN_WIDTH + x] = (enum GbColor) color;
                 }
             }
 
@@ -130,7 +130,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
             }
         }
         break;
-    case PPU_MODE_H_BLANK:
+    case GB_PPU_MODE_H_BLANK:
         if (ppu->dots_counter >= PPU_MODE_H_BLANK_DOTS)
         {
             ppu->dots_counter -= PPU_MODE_H_BLANK_DOTS;
@@ -139,16 +139,16 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
 
             if (ppu->ly >= 0x90)
             {
-                ppu->mode = PPU_MODE_V_BLANK;
+                ppu->mode = GB_PPU_MODE_V_BLANK;
                 GB_BIT_SET(ppu->cpu->interrupt_flag, 0);
             }
             else
             {
-                ppu->mode = PPU_MODE_OAM_SCAN;
+                ppu->mode = GB_PPU_MODE_OAM_SCAN;
             }
         }
         break;
-    case PPU_MODE_V_BLANK:
+    case GB_PPU_MODE_V_BLANK:
         if (ppu->dots_counter >= PPU_MODE_V_BLANK_DOTS)
         {
             ppu->dots_counter -= PPU_MODE_V_BLANK_DOTS;
@@ -157,7 +157,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
 
             if (ppu->ly >= 0x9a)
             {
-                ppu->mode = PPU_MODE_OAM_SCAN;
+                ppu->mode = GB_PPU_MODE_OAM_SCAN;
                 ppu->ly = 0;
             }
         }

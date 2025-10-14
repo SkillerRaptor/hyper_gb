@@ -12,9 +12,9 @@
 
 #include "gb/utils/log.h"
 
-struct Cartridge *cartridge_create(const char *rom)
+struct GbCartridge *gb_cartridge_create(const char *rom)
 {
-    struct Cartridge *cartridge = malloc(sizeof(struct Cartridge));
+    struct GbCartridge *cartridge = malloc(sizeof(struct GbCartridge));
     cartridge->rom = NULL;
 
     if (rom != NULL)
@@ -57,13 +57,13 @@ struct Cartridge *cartridge_create(const char *rom)
     return cartridge;
 }
 
-void cartridge_destroy(struct Cartridge *cartridge)
+void gb_cartridge_destroy(struct GbCartridge *cartridge)
 {
     free(cartridge->rom);
     free(cartridge);
 }
 
-void cartridge_write(struct Cartridge *cartridge, const uint16_t address, const uint8_t value)
+void gb_cartridge_write(struct GbCartridge *cartridge, const uint16_t address, const uint8_t value)
 {
     // FIXME: Implement Mappers
     (void) cartridge;
@@ -71,4 +71,4 @@ void cartridge_write(struct Cartridge *cartridge, const uint16_t address, const 
     (void) value;
 }
 
-uint8_t cartridge_read(const struct Cartridge *cartridge, const uint16_t address) { return cartridge->rom[address]; }
+uint8_t gb_cartridge_read(const struct GbCartridge *cartridge, const uint16_t address) { return cartridge->rom[address]; }

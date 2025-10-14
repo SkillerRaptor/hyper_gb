@@ -38,9 +38,9 @@ extern "C"
         }
 #endif
 
-struct Mmu;
+struct GbMmu;
 
-struct Registers
+struct GbRegisters
 {
     GB_DEFINE_REGISTER(a, f);
     GB_DEFINE_REGISTER(b, c);
@@ -50,58 +50,58 @@ struct Registers
     uint16_t pc;
 };
 
-enum Register8
+enum GbRegister8
 {
-    R8_A,
-    R8_B,
-    R8_C,
-    R8_D,
-    R8_E,
-    R8_H,
-    R8_L,
+    GB_R8_A,
+    GB_R8_B,
+    GB_R8_C,
+    GB_R8_D,
+    GB_R8_E,
+    GB_R8_H,
+    GB_R8_L,
 };
 
-enum Register16
+enum GbRegister16
 {
-    R16_AF,
-    R16_BC,
-    R16_DE,
-    R16_HL,
+    GB_R16_AF,
+    GB_R16_BC,
+    GB_R16_DE,
+    GB_R16_HL,
 };
 
-enum Flag
+enum GbFlag
 {
-    FLAG_Z = 1 << 7,
-    FLAG_N = 1 << 6,
-    FLAG_H = 1 << 5,
-    FLAG_C = 1 << 4,
+    GB_FLAG_Z = 1 << 7,
+    GB_FLAG_N = 1 << 6,
+    GB_FLAG_H = 1 << 5,
+    GB_FLAG_C = 1 << 4,
 };
 
-enum ConditionCode
+enum GbConditionCode
 {
-    CC_Z,
-    CC_NZ,
-    CC_C,
-    CC_NC,
+    GB_CC_Z,
+    GB_CC_NZ,
+    GB_CC_C,
+    GB_CC_NC,
 };
 
-enum Rst
+enum GbRst
 {
-    RST_00 = 0x00,
-    RST_08 = 0x08,
-    RST_10 = 0x10,
-    RST_18 = 0x18,
-    RST_20 = 0x20,
-    RST_28 = 0x28,
-    RST_30 = 0x30,
-    RST_38 = 0x38,
+    GB_RST_00 = 0x00,
+    GB_RST_08 = 0x08,
+    GB_RST_10 = 0x10,
+    GB_RST_18 = 0x18,
+    GB_RST_20 = 0x20,
+    GB_RST_28 = 0x28,
+    GB_RST_30 = 0x30,
+    GB_RST_38 = 0x38,
 };
 
-struct Cpu
+struct GbCpu
 {
-    struct Mmu *mmu;
+    struct GbMmu *mmu;
 
-    struct Registers registers;
+    struct GbRegisters registers;
 
     bool interrupt_master_enable; // IME flag
     uint8_t ime_delay;
@@ -110,28 +110,28 @@ struct Cpu
     uint8_t interrupt_flag; // IF
 };
 
-struct Cpu *cpu_create();
-void cpu_destroy(struct Cpu *);
+struct GbCpu *gb_cpu_create();
+void gb_cpu_destroy(struct GbCpu *);
 
-void cpu_set_register8(struct Cpu *, enum Register8, uint8_t);
-uint8_t cpu_get_register8(struct Cpu *, enum Register8);
+void gb_cpu_set_register8(struct GbCpu *, enum GbRegister8, uint8_t);
+uint8_t gb_cpu_get_register8(struct GbCpu *, enum GbRegister8);
 
-void cpu_set_register16(struct Cpu *, enum Register16, uint16_t);
-uint16_t cpu_get_register16(struct Cpu *, enum Register16);
+void gb_cpu_set_register16(struct GbCpu *, enum GbRegister16, uint16_t);
+uint16_t gb_cpu_get_register16(struct GbCpu *, enum GbRegister16);
 
-void cpu_set_flag(struct Cpu *, enum Flag, bool);
-bool cpu_is_flag(struct Cpu *, enum Flag);
+void gb_cpu_set_flag(struct GbCpu *, enum GbFlag, bool);
+bool gb_cpu_is_flag(struct GbCpu *, enum GbFlag);
 
-bool cpu_is_condition(struct Cpu *, enum ConditionCode);
+bool gb_cpu_is_condition(struct GbCpu *, enum GbConditionCode);
 
-void cpu_push_stack(struct Cpu *, uint16_t);
-uint16_t cpu_pop_stack(struct Cpu *);
+void gb_cpu_push_stack(struct GbCpu *, uint16_t);
+uint16_t gb_cpu_pop_stack(struct GbCpu *);
 
-int8_t cpu_fetch_i8(struct Cpu *cpu);
-uint8_t cpu_fetch_u8(struct Cpu *cpu);
-uint16_t cpu_fetch_u16(struct Cpu *cpu);
+int8_t gb_cpu_fetch_i8(struct GbCpu *cpu);
+uint8_t gb_cpu_fetch_u8(struct GbCpu *cpu);
+uint16_t gb_cpu_fetch_u16(struct GbCpu *cpu);
 
-uint8_t cpu_tick(struct Cpu *);
+uint8_t gb_cpu_tick(struct GbCpu *);
 
 #undef GB_DEFINE_REGISTER
 

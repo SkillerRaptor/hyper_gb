@@ -19,12 +19,12 @@
 #define GB_DIVIDER_HZ 16384.0
 #define GB_DIVIDER_CYCLES (GB_MASTER_CLOCK_HZ / GB_DIVIDER_HZ)
 
-static bool timer_is_enabled(struct Timer *);
-static uint32_t timer_get_frequency(struct Timer *);
+static bool timer_is_enabled(struct GbTimer *);
+static uint32_t timer_get_frequency(struct GbTimer *);
 
-struct Timer *timer_create()
+struct GbTimer *gb_timer_create()
 {
-    struct Timer *timer = malloc(sizeof(struct Timer));
+    struct GbTimer *timer = malloc(sizeof(struct GbTimer));
     timer->cpu = NULL;
     timer->div_counter = 0;
     timer->counter = 0;
@@ -36,9 +36,9 @@ struct Timer *timer_create()
     return timer;
 }
 
-void timer_destroy(struct Timer *timer) { free(timer); }
+void gb_timer_destroy(struct GbTimer *timer) { free(timer); }
 
-void timer_tick(struct Timer *timer, const uint8_t t_cycles)
+void gb_timer_tick(struct GbTimer *timer, const uint8_t t_cycles)
 {
     // DIV is incremented at a rate of 16384Hz which is equal to 256 t-cycles or 64 m-cycles
     timer->div_counter += t_cycles;
@@ -70,9 +70,9 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
     }
 }
 
-static bool timer_is_enabled(struct Timer *timer) { return ((timer->tac >> 2) & 0b1) != 0; }
+static bool timer_is_enabled(struct GbTimer *timer) { return ((timer->tac >> 2) & 0b1) != 0; }
 
-static uint32_t timer_get_frequency(struct Timer *timer)
+static uint32_t timer_get_frequency(struct GbTimer *timer)
 {
     const uint8_t clock = timer->tac & 0b11;
     switch (clock)

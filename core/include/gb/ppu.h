@@ -13,29 +13,29 @@ extern "C"
 {
 #endif
 
-struct Cpu;
-struct Mmu;
+struct GbCpu;
+struct GbMmu;
 
-enum Color
+enum GbColor
 {
-    COLOR_WHITE = 0,
-    COLOR_LIGHT_GRAY,
-    COLOR_DARK_GRAY,
-    COLOR_BLACK,
+    GB_COLOR_WHITE = 0,
+    GB_COLOR_LIGHT_GRAY,
+    GB_COLOR_DARK_GRAY,
+    GB_COLOR_BLACK,
 };
 
-enum PpuMode
+enum GbPpuMode
 {
-    PPU_MODE_OAM_SCAN,
-    PPU_MODE_DRAWING,
-    PPU_MODE_H_BLANK,
-    PPU_MODE_V_BLANK,
+    GB_PPU_MODE_OAM_SCAN,
+    GB_PPU_MODE_DRAWING,
+    GB_PPU_MODE_H_BLANK,
+    GB_PPU_MODE_V_BLANK,
 };
 
-struct Ppu
+struct GbPpu
 {
-    struct Mmu *mmu;
-    struct Cpu *cpu;
+    struct GbMmu *mmu;
+    struct GbCpu *cpu;
 
     // Memory
     uint8_t *vram;
@@ -55,15 +55,15 @@ struct Ppu
 
     // Others
     uint16_t dots_counter;
-    enum PpuMode mode;
+    enum GbPpuMode mode;
 
-    enum Color *screen;
+    enum GbColor *screen;
 };
 
-struct Ppu *ppu_create();
-void ppu_destroy(struct Ppu *);
+struct GbPpu *gb_ppu_create();
+void gb_ppu_destroy(struct GbPpu *);
 
-void ppu_tick(struct Ppu *, uint8_t t_cycles);
+void gb_ppu_tick(struct GbPpu *, uint8_t t_cycles);
 
 #ifdef __cplusplus
 }

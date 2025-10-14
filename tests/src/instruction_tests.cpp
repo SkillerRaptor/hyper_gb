@@ -72,8 +72,8 @@ void execute_test(const std::string &test_file)
     const std::vector<TestData> tests = data.get<std::vector<TestData>>();
 
     Gb *gb = gb_create(nullptr);
-    Mmu *mmu = gb->mmu;
-    Cpu *cpu = gb->cpu;
+    GbMmu *mmu = gb->mmu;
+    GbCpu *cpu = gb->cpu;
 
     for (const TestData &test : tests)
     {
@@ -91,13 +91,13 @@ void execute_test(const std::string &test_file)
 
         for (const auto &[address, value] : test.initial.ram)
         {
-            mmu_write(mmu, address, value);
+            gb_mmu_write(mmu, address, value);
         }
 
         // Max Instruction Steps
         for (size_t i = 0; i < 100; ++i)
         {
-            cpu_tick(cpu);
+            gb_cpu_tick(cpu);
 
             if (cpu->registers.pc == test.final.pc)
             {
@@ -119,12 +119,12 @@ void execute_test(const std::string &test_file)
 
         for (const auto &[address, value] : test.final.ram)
         {
-            REQUIRE(mmu_read(mmu, address) == value);
+            REQUIRE(gb_mmu_read(mmu, address) == value);
         }
     }
 
-    cpu_destroy(cpu);
-    mmu_destroy(mmu);
+    gb_cpu_destroy(cpu);
+    gb_mmu_destroy(mmu);
 }
 
 #define GENERATE_TEST(code) \

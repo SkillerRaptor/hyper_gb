@@ -18,11 +18,11 @@
 struct Gb *gb_create(const char *rom)
 {
     struct Gb *gb = malloc(sizeof(struct Gb));
-    gb->cartridge = cartridge_create(rom);
-    gb->mmu = mmu_create();
-    gb->cpu = cpu_create();
-    gb->ppu = ppu_create();
-    gb->timer = timer_create();
+    gb->cartridge = gb_cartridge_create(rom);
+    gb->mmu = gb_mmu_create();
+    gb->cpu = gb_cpu_create();
+    gb->ppu = gb_ppu_create();
+    gb->timer = gb_timer_create();
 
     gb->mmu->cartridge = gb->cartridge;
     gb->mmu->cpu = gb->cpu;
@@ -41,11 +41,11 @@ struct Gb *gb_create(const char *rom)
 
 void gb_destroy(struct Gb *gb)
 {
-    timer_destroy(gb->timer);
-    ppu_destroy(gb->ppu);
-    cpu_destroy(gb->cpu);
-    mmu_destroy(gb->mmu);
-    cartridge_destroy(gb->cartridge);
+    gb_timer_destroy(gb->timer);
+    gb_ppu_destroy(gb->ppu);
+    gb_cpu_destroy(gb->cpu);
+    gb_mmu_destroy(gb->mmu);
+    gb_cartridge_destroy(gb->cartridge);
 
     free(gb);
 }
@@ -56,10 +56,10 @@ void gb_run_frame(struct Gb *gb)
     while (cycles_this_frame < GB_FRAME_CYCLES)
     {
         // NOTE: The cycles are given as m-cycles
-        const uint8_t m_cycles = cpu_tick(gb->cpu);
+        const uint8_t m_cycles = gb_cpu_tick(gb->cpu);
         const uint8_t t_cycles = m_cycles * 4;
-        ppu_tick(gb->ppu, t_cycles);
-        timer_tick(gb->timer, t_cycles);
+        gb_ppu_tick(gb->ppu, t_cycles);
+        gb_timer_tick(gb->timer, t_cycles);
         cycles_this_frame += t_cycles;
     }
 }

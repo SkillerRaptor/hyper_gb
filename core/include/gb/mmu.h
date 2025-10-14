@@ -13,17 +13,17 @@ extern "C"
 {
 #endif
 
-struct Cartridge;
-struct Cpu;
-struct Ppu;
-struct Timer;
+struct GbCartridge;
+struct GbCpu;
+struct GbPpu;
+struct GbTimer;
 
-struct Mmu
+struct GbMmu
 {
-    struct Cartridge *cartridge;
-    struct Cpu *cpu;
-    struct Ppu *ppu;
-    struct Timer *timer;
+    struct GbCartridge *cartridge;
+    struct GbCpu *cpu;
+    struct GbPpu *ppu;
+    struct GbTimer *timer;
 
 #if TESTS_ENABLED
     uint8_t *memory;
@@ -35,11 +35,11 @@ struct Mmu
 #endif
 };
 
-struct Mmu *mmu_create();
-void mmu_destroy(struct Mmu *);
+struct GbMmu *gb_mmu_create();
+void gb_mmu_destroy(struct GbMmu *);
 
-void mmu_write(struct Mmu *, uint16_t address, uint8_t value);
-uint8_t mmu_read(struct Mmu *, uint16_t address);
+void gb_mmu_write(struct GbMmu *, uint16_t address, uint8_t value);
+uint8_t gb_mmu_read(struct GbMmu *, uint16_t address);
 
 #ifdef __cplusplus
 }

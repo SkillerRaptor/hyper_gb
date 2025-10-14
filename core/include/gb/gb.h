@@ -11,19 +11,19 @@ extern "C"
 {
 #endif
 
-struct Cartridge;
-struct Cpu;
-struct Mmu;
-struct Ppu;
-struct Timer;
+struct GbCartridge;
+struct GbCpu;
+struct GbMmu;
+struct GbPpu;
+struct GbTimer;
 
 struct Gb
 {
-    struct Cartridge *cartridge;
-    struct Mmu *mmu;
-    struct Cpu *cpu;
-    struct Ppu *ppu;
-    struct Timer *timer;
+    struct GbCartridge *cartridge;
+    struct GbMmu *mmu;
+    struct GbCpu *cpu;
+    struct GbPpu *ppu;
+    struct GbTimer *timer;
 };
 
 struct Gb *gb_create(const char *rom);

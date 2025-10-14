@@ -299,15 +299,15 @@ void emulator_render_game_screen_texture(struct Emulator *emulator)
     uint32_t *pixels = pixels_ptr;
     for (uint32_t i = 0; i < GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT; ++i)
     {
-        const enum Color color_enum = emulator->gb->ppu->screen[i];
+        const enum GbColor color_enum = emulator->gb->ppu->screen[i];
 
         uint32_t color = 0xff000000;
         switch (color_enum)
         {
-        case COLOR_WHITE: color = 0xff000000; break;
-        case COLOR_LIGHT_GRAY: color = 0xff555555; break;
-        case COLOR_DARK_GRAY: color = 0xffaaaaaa; break;
-        case COLOR_BLACK: color = 0xffffffff; break;
+        case GB_COLOR_WHITE: color = 0xff000000; break;
+        case GB_COLOR_LIGHT_GRAY: color = 0xff555555; break;
+        case GB_COLOR_DARK_GRAY: color = 0xffaaaaaa; break;
+        case GB_COLOR_BLACK: color = 0xffffffff; break;
         default: break;
         }
 
@@ -539,7 +539,7 @@ void emulator_show_cpu_state(struct Emulator *emulator)
     igSeparatorText("Registers");
     if (igBeginTable("Registers", 4, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, (ImVec2) { 0.0f, 0.0f }, 0.0f))
     {
-        struct Registers registers = { 0 };
+        struct GbRegisters registers = { 0 };
         if (emulator->gb)
         {
             registers = emulator->gb->cpu->registers;
@@ -632,26 +632,26 @@ void emulator_show_cpu_state(struct Emulator *emulator)
         igTableNextColumn();
         igText("Zero");
         igTableNextColumn();
-        bool zero = emulator->gb ? cpu_is_flag(emulator->gb->cpu, FLAG_Z) : false;
+        bool zero = emulator->gb ? gb_cpu_is_flag(emulator->gb->cpu, GB_FLAG_Z) : false;
         igCheckbox("##Zero", &zero);
 
         igTableNextColumn();
         igText("Subtraction");
         igTableNextColumn();
-        bool subtraction = emulator->gb ? cpu_is_flag(emulator->gb->cpu, FLAG_N) : false;
+        bool subtraction = emulator->gb ? gb_cpu_is_flag(emulator->gb->cpu, GB_FLAG_N) : false;
         igCheckbox("##Subtraction", &subtraction);
 
         igTableNextRow(0, 0.0f);
         igTableNextColumn();
         igText("Half Carry");
         igTableNextColumn();
-        bool half_carry = emulator->gb ? cpu_is_flag(emulator->gb->cpu, FLAG_H) : false;
+        bool half_carry = emulator->gb ? gb_cpu_is_flag(emulator->gb->cpu, GB_FLAG_H) : false;
         igCheckbox("##HalfCarry", &half_carry);
 
         igTableNextColumn();
         igText("Carry");
         igTableNextColumn();
-        bool carry = emulator->gb ? cpu_is_flag(emulator->gb->cpu, FLAG_C) : false;
+        bool carry = emulator->gb ? gb_cpu_is_flag(emulator->gb->cpu, GB_FLAG_C) : false;
         igCheckbox("##Carry", &carry);
 
         igEndTable();
