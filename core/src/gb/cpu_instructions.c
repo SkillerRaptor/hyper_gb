@@ -6,7 +6,7 @@
 
 #include "gb/cpu_instructions.h"
 
-#include "gb/gameboy.h"
+#include "gb/gb.h"
 #include "gb/mmu.h"
 #include "gb/utils/bits.h"
 
@@ -35,20 +35,20 @@ uint8_t cpu_ld_r16_n16(struct Cpu *cpu, const enum Register16 dst)
 uint8_t cpu_ld_hl_r8(struct Cpu *cpu, const enum Register8 src)
 {
     const uint8_t value = cpu_get_register8(cpu, src);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, value);
+    mmu_write(cpu->mmu, cpu->registers.hl, value);
     return 2;
 }
 
 uint8_t cpu_ld_hl_n8(struct Cpu *cpu)
 {
     const uint8_t src = cpu_fetch_u8(cpu);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, src);
+    mmu_write(cpu->mmu, cpu->registers.hl, src);
     return 3;
 }
 
 uint8_t cpu_ld_r8_hl(struct Cpu *cpu, const enum Register8 dst)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_set_register8(cpu, dst, value);
     return 2;
 }
@@ -56,14 +56,14 @@ uint8_t cpu_ld_r8_hl(struct Cpu *cpu, const enum Register8 dst)
 uint8_t cpu_ld_r16_a(struct Cpu *cpu, const enum Register16 dst)
 {
     const uint16_t address = cpu_get_register16(cpu, dst);
-    mmu_write(cpu->gb->mmu, address, cpu->registers.a);
+    mmu_write(cpu->mmu, address, cpu->registers.a);
     return 2;
 }
 
 uint8_t cpu_ld_n16_a(struct Cpu *cpu)
 {
     const uint16_t dst = cpu_fetch_u16(cpu);
-    mmu_write(cpu->gb->mmu, dst, cpu->registers.a);
+    mmu_write(cpu->mmu, dst, cpu->registers.a);
     return 4;
 }
 
@@ -71,21 +71,21 @@ uint8_t cpu_ldh_n8_a(struct Cpu *cpu)
 {
     const uint8_t dst = cpu_fetch_u8(cpu);
     const uint16_t address = 0xff00 + dst;
-    mmu_write(cpu->gb->mmu, address, cpu->registers.a);
+    mmu_write(cpu->mmu, address, cpu->registers.a);
     return 3;
 }
 
 uint8_t cpu_ldh_c_a(struct Cpu *cpu)
 {
     const uint16_t address = 0xff00 + cpu->registers.c;
-    mmu_write(cpu->gb->mmu, address, cpu->registers.a);
+    mmu_write(cpu->mmu, address, cpu->registers.a);
     return 2;
 }
 
 uint8_t cpu_ld_a_r16(struct Cpu *cpu, const enum Register16 src)
 {
     const uint16_t address = cpu_get_register16(cpu, src);
-    const uint8_t value = mmu_read(cpu->gb->mmu, address);
+    const uint8_t value = mmu_read(cpu->mmu, address);
     cpu->registers.a = value;
     return 2;
 }
@@ -93,7 +93,7 @@ uint8_t cpu_ld_a_r16(struct Cpu *cpu, const enum Register16 src)
 uint8_t cpu_ld_a_n16(struct Cpu *cpu)
 {
     const uint16_t src = cpu_fetch_u16(cpu);
-    const uint8_t value = mmu_read(cpu->gb->mmu, src);
+    const uint8_t value = mmu_read(cpu->mmu, src);
     cpu->registers.a = value;
     return 4;
 }
@@ -102,7 +102,7 @@ uint8_t cpu_ldh_a_n8(struct Cpu *cpu)
 {
     const uint16_t src = cpu_fetch_u8(cpu);
     const uint16_t address = 0xff00 + src;
-    const uint8_t value = mmu_read(cpu->gb->mmu, address);
+    const uint8_t value = mmu_read(cpu->mmu, address);
     cpu->registers.a = value;
     return 3;
 }
@@ -110,28 +110,28 @@ uint8_t cpu_ldh_a_n8(struct Cpu *cpu)
 uint8_t cpu_ldh_a_c(struct Cpu *cpu)
 {
     const uint16_t address = 0xff00 + cpu->registers.c;
-    const uint8_t value = mmu_read(cpu->gb->mmu, address);
+    const uint8_t value = mmu_read(cpu->mmu, address);
     cpu->registers.a = value;
     return 2;
 }
 
 uint8_t cpu_ld_hli_a(struct Cpu *cpu)
 {
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, cpu->registers.a);
+    mmu_write(cpu->mmu, cpu->registers.hl, cpu->registers.a);
     cpu->registers.hl += 1;
     return 2;
 }
 
 uint8_t cpu_ld_hld_a(struct Cpu *cpu)
 {
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, cpu->registers.a);
+    mmu_write(cpu->mmu, cpu->registers.hl, cpu->registers.a);
     cpu->registers.hl -= 1;
     return 2;
 }
 
 uint8_t cpu_ld_a_hli(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu->registers.a = value;
     cpu->registers.hl += 1;
     return 2;
@@ -139,7 +139,7 @@ uint8_t cpu_ld_a_hli(struct Cpu *cpu)
 
 uint8_t cpu_ld_a_hld(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu->registers.a = value;
     cpu->registers.hl -= 1;
     return 2;
@@ -169,7 +169,7 @@ uint8_t cpu_adc_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_adc_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_adc_a(cpu, value);
     return 2;
 }
@@ -203,7 +203,7 @@ uint8_t cpu_add_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_add_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_add_a(cpu, value);
     return 2;
 }
@@ -234,7 +234,7 @@ uint8_t cpu_cp_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_cp_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_cp_a(cpu, value);
     return 2;
 }
@@ -267,9 +267,9 @@ uint8_t cpu_dec_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_dec_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_dec(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 3;
 }
 
@@ -294,9 +294,9 @@ uint8_t cpu_inc_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_inc_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_inc(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 3;
 }
 
@@ -323,7 +323,7 @@ uint8_t cpu_sbc_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_sbc_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_sbc_a(cpu, value);
     return 2;
 }
@@ -357,7 +357,7 @@ uint8_t cpu_sub_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_sub_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_sub_a(cpu, value);
     return 2;
 }
@@ -424,7 +424,7 @@ uint8_t cpu_and_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_and_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_and_a(cpu, value);
     return 2;
 }
@@ -468,7 +468,7 @@ uint8_t cpu_or_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_or_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_or_a(cpu, value);
     return 2;
 }
@@ -501,7 +501,7 @@ uint8_t cpu_xor_a_r8(struct Cpu *cpu, const enum Register8 src)
 
 uint8_t cpu_xor_a_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_xor_a(cpu, value);
     return 2;
 }
@@ -532,7 +532,7 @@ uint8_t cpu_bit_u3_r8(struct Cpu *cpu, const uint8_t bit, const enum Register8 s
 
 uint8_t cpu_bit_u3_hl(struct Cpu *cpu, const uint8_t bit)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     cpu_bit_u3(cpu, bit, value);
     return 3;
 }
@@ -553,9 +553,9 @@ uint8_t cpu_res_u3_r8(struct Cpu *cpu, const uint8_t bit, const enum Register8 d
 
 uint8_t cpu_res_u3_hl(struct Cpu *cpu, const uint8_t bit)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_res_u3(bit, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -575,9 +575,9 @@ uint8_t cpu_set_u3_r8(struct Cpu *cpu, const uint8_t bit, const enum Register8 d
 
 uint8_t cpu_set_u3_hl(struct Cpu *cpu, const uint8_t bit)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_set_u3(bit, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -606,9 +606,9 @@ uint8_t cpu_rl_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_rl_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_rl(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -642,9 +642,9 @@ uint8_t cpu_rlc_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_rlc_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_rlc(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -680,9 +680,9 @@ uint8_t cpu_rr_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_rr_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_rr(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -716,9 +716,9 @@ uint8_t cpu_rrc_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_rrc_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_rrc(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -752,9 +752,9 @@ uint8_t cpu_sla_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_sla_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_sla(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -791,9 +791,9 @@ uint8_t cpu_sra_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_sra_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_sra(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -820,9 +820,9 @@ uint8_t cpu_srl_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_srl_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_srl(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -850,9 +850,9 @@ uint8_t cpu_swap_r8(struct Cpu *cpu, const enum Register8 dst)
 
 uint8_t cpu_swap_hl(struct Cpu *cpu)
 {
-    const uint8_t value = mmu_read(cpu->gb->mmu, cpu->registers.hl);
+    const uint8_t value = mmu_read(cpu->mmu, cpu->registers.hl);
     const uint8_t result = cpu_swap(cpu, value);
-    mmu_write(cpu->gb->mmu, cpu->registers.hl, result);
+    mmu_write(cpu->mmu, cpu->registers.hl, result);
     return 4;
 }
 
@@ -1028,8 +1028,8 @@ uint8_t cpu_ld_n16_sp(struct Cpu *cpu)
 {
     const uint16_t address = cpu_fetch_u16(cpu);
 
-    mmu_write(cpu->gb->mmu, address, cpu->registers.sp & 0xff);
-    mmu_write(cpu->gb->mmu, address + 1, cpu->registers.sp >> 8);
+    mmu_write(cpu->mmu, address, cpu->registers.sp & 0xff);
+    mmu_write(cpu->mmu, address + 1, cpu->registers.sp >> 8);
     return 5;
 }
 

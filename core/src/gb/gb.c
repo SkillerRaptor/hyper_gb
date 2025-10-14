@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "gb/gameboy.h"
+#include "gb/gb.h"
 
 #include <stdlib.h>
 
@@ -14,38 +14,43 @@
 #include "gb/mmu.h"
 #include "gb/ppu.h"
 #include "gb/timer.h"
-#include "gb/utils/log.h"
 
-struct Gameboy *gameboy_create(const char *rom)
+struct Gb *gb_create(const char *rom)
 {
-    struct Gameboy *gameboy = calloc(1, sizeof(struct Gameboy));
-    gameboy->cartridge = rom ? cartridge_create(rom) : NULL;
-    gameboy->mmu = mmu_create(gameboy);
-    gameboy->cpu = cpu_create(gameboy);
-    gameboy->ppu = ppu_create(gameboy);
-    gameboy->timer = timer_create(gameboy);
+    struct Gb *gb = malloc(sizeof(struct Gb));
+    gb->cartridge = cartridge_create(rom);
+    gb->mmu = mmu_create();
+    gb->cpu = cpu_create();
+    gb->ppu = ppu_create();
+    gb->timer = timer_create();
 
-    if (gameboy->cartridge)
-    {
-        char *cartridge_title = cartridge_get_title(gameboy->cartridge);
-        gb_log(GB_LOG_INFO, "Loaded cartridge '%s'\n", cartridge_title);
-        free(cartridge_title);
-    }
+    gb->mmu->cartridge = gb->cartridge;
+    gb->mmu->cpu = gb->cpu;
+    gb->mmu->ppu = gb->ppu;
+    gb->mmu->timer = gb->timer;
 
-    return gameboy;
+    gb->cpu->mmu = gb->mmu;
+
+    gb->ppu->mmu = gb->mmu;
+    gb->ppu->cpu = gb->cpu;
+
+    gb->timer->cpu = gb->cpu;
+
+    return gb;
 }
 
-void gameboy_destroy(struct Gameboy *gb)
+void gb_destroy(struct Gb *gb)
 {
     timer_destroy(gb->timer);
     ppu_destroy(gb->ppu);
     cpu_destroy(gb->cpu);
     mmu_destroy(gb->mmu);
     cartridge_destroy(gb->cartridge);
+
     free(gb);
 }
 
-void gameboy_run_frame(struct Gameboy *gb)
+void gb_run_frame(struct Gb *gb)
 {
     uint32_t cycles_this_frame = 0;
     while (cycles_this_frame < GB_FRAME_CYCLES)

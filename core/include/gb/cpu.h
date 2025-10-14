@@ -9,77 +9,43 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "gb/prerequisites.h"
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-struct Gameboy;
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#    define GB_DEFINE_REGISTER(a, b) \
+        union                        \
+        {                            \
+            struct                   \
+            {                        \
+                uint8_t b;           \
+                uint8_t a;           \
+            };                       \
+            uint16_t a##b;           \
+        }
+#else
+#    define GB_DEFINE_REGISTER(a, b) \
+        union                        \
+        {                            \
+            struct                   \
+            {                        \
+                uint8_t a;           \
+                uint8_t b;           \
+            };                       \
+            uint16_t a##b;           \
+        }
+#endif
+
+struct Mmu;
 
 struct Registers
 {
-    union
-    {
-        struct
-        {
-#if LITTLE_ENDIAN
-            uint8_t f;
-            uint8_t a;
-#else
-            uint8_t a;
-            uint8_t f;
-#endif
-        };
-        uint16_t af;
-    };
-
-    union
-    {
-        struct
-        {
-#if LITTLE_ENDIAN
-            uint8_t c;
-            uint8_t b;
-#else
-            uint8_t b;
-            uint8_t c;
-#endif
-        };
-        uint16_t bc;
-    };
-
-    union
-    {
-        struct
-        {
-#if LITTLE_ENDIAN
-            uint8_t e;
-            uint8_t d;
-#else
-            uint8_t d;
-            uint8_t e;
-#endif
-        };
-        uint16_t de;
-    };
-
-    union
-    {
-        struct
-        {
-#if LITTLE_ENDIAN
-            uint8_t l;
-            uint8_t h;
-#else
-            uint8_t h;
-            uint8_t l;
-#endif
-        };
-        uint16_t hl;
-    };
-
+    GB_DEFINE_REGISTER(a, f);
+    GB_DEFINE_REGISTER(b, c);
+    GB_DEFINE_REGISTER(d, e);
+    GB_DEFINE_REGISTER(h, l);
     uint16_t sp;
     uint16_t pc;
 };
@@ -133,7 +99,7 @@ enum Rst
 
 struct Cpu
 {
-    struct Gameboy *gb;
+    struct Mmu *mmu;
 
     struct Registers registers;
 
@@ -144,7 +110,7 @@ struct Cpu
     uint8_t interrupt_flag; // IF
 };
 
-struct Cpu *cpu_create(struct Gameboy *);
+struct Cpu *cpu_create();
 void cpu_destroy(struct Cpu *);
 
 void cpu_set_register8(struct Cpu *, enum Register8, uint8_t);
@@ -166,6 +132,8 @@ uint8_t cpu_fetch_u8(struct Cpu *cpu);
 uint16_t cpu_fetch_u16(struct Cpu *cpu);
 
 uint8_t cpu_tick(struct Cpu *);
+
+#undef GB_DEFINE_REGISTER
 
 #ifdef __cplusplus
 }

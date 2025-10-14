@@ -7,22 +7,20 @@ set(SOURCES
         src/gb/cartridge.c
         src/gb/cpu.c
         src/gb/cpu_instructions.c
-        src/gb/gameboy.c
+        src/gb/gb.c
         src/gb/mmu.c
         src/gb/ppu.c
         src/gb/timer.c
         src/gb/utils/log.c)
 
 set(HEADERS
-        include/gb.h
         include/gb/cartridge.h
         include/gb/cpu.h
         include/gb/cpu_instructions.h
         include/gb/definitions.h
-        include/gb/gameboy.h
+        include/gb/gb.h
         include/gb/mmu.h
         include/gb/ppu.h
-        include/gb/prerequisites.h
         include/gb/timer.h
         include/gb/utils/bits.h
         include/gb/utils/log.h)

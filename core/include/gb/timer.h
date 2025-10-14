@@ -13,11 +13,11 @@ extern "C"
 {
 #endif
 
-struct Gameboy;
+struct Cpu;
 
 struct Timer
 {
-    struct Gameboy *gb;
+    struct Cpu *cpu;
 
     uint16_t div_counter;
     uint16_t counter;
@@ -29,7 +29,7 @@ struct Timer
     uint8_t tac; // 0xff07 - Timer control
 };
 
-struct Timer *timer_create(struct Gameboy *);
+struct Timer *timer_create();
 void timer_destroy(struct Timer *);
 
 void timer_tick(struct Timer *, uint8_t t_cycles);

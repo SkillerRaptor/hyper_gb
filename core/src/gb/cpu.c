@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 #include "gb/cpu_instructions.h"
-#include "gb/gameboy.h"
 #include "gb/mmu.h"
 #include "gb/utils/bits.h"
 #include "gb/utils/log.h"
@@ -18,10 +17,10 @@
 static uint8_t cpu_execute_opcode(struct Cpu *cpu, uint8_t opcode);
 static uint8_t cpu_execute_cb_opcode(struct Cpu *cpu, uint8_t opcode);
 
-struct Cpu *cpu_create(struct Gameboy *gb)
+struct Cpu *cpu_create()
 {
     struct Cpu *cpu = malloc(sizeof(struct Cpu));
-    cpu->gb = gb;
+    cpu->mmu = NULL;
 
     cpu->registers.a = 0x01;
     cpu->registers.f = 0x00;
@@ -134,17 +133,17 @@ bool cpu_is_condition(struct Cpu *cpu, const enum ConditionCode cc)
 void cpu_push_stack(struct Cpu *cpu, const uint16_t value)
 {
     cpu->registers.sp -= 1;
-    mmu_write(cpu->gb->mmu, cpu->registers.sp, (uint8_t) ((value & 0xff00) >> 8));
+    mmu_write(cpu->mmu, cpu->registers.sp, (uint8_t) ((value & 0xff00) >> 8));
     cpu->registers.sp -= 1;
-    mmu_write(cpu->gb->mmu, cpu->registers.sp, (uint8_t) ((value & 0x00ff) >> 0));
+    mmu_write(cpu->mmu, cpu->registers.sp, (uint8_t) ((value & 0x00ff) >> 0));
 }
 
 uint16_t cpu_pop_stack(struct Cpu *cpu)
 {
-    const uint8_t lower_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
+    const uint8_t lower_byte = mmu_read(cpu->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
-    const uint8_t higher_byte = mmu_read(cpu->gb->mmu, cpu->registers.sp);
+    const uint8_t higher_byte = mmu_read(cpu->mmu, cpu->registers.sp);
     cpu->registers.sp += 1;
 
     const uint16_t result = ((uint16_t) higher_byte << 8) | (uint16_t) lower_byte;
@@ -155,7 +154,7 @@ int8_t cpu_fetch_i8(struct Cpu *cpu) { return (int8_t) cpu_fetch_u8(cpu); }
 
 uint8_t cpu_fetch_u8(struct Cpu *cpu)
 {
-    const uint8_t byte = mmu_read(cpu->gb->mmu, cpu->registers.pc);
+    const uint8_t byte = mmu_read(cpu->mmu, cpu->registers.pc);
     cpu->registers.pc += 1;
 
     return byte;

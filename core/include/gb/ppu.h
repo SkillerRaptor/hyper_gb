@@ -13,7 +13,8 @@ extern "C"
 {
 #endif
 
-struct Gameboy;
+struct Cpu;
+struct Mmu;
 
 enum Color
 {
@@ -33,7 +34,8 @@ enum PpuMode
 
 struct Ppu
 {
-    struct Gameboy *gb;
+    struct Mmu *mmu;
+    struct Cpu *cpu;
 
     // Memory
     uint8_t *vram;
@@ -58,7 +60,7 @@ struct Ppu
     enum Color *screen;
 };
 
-struct Ppu *ppu_create(struct Gameboy *);
+struct Ppu *ppu_create();
 void ppu_destroy(struct Ppu *);
 
 void ppu_tick(struct Ppu *, uint8_t t_cycles);

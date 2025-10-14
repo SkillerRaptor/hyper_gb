@@ -11,7 +11,6 @@
 
 #include "gb/cartridge.h"
 #include "gb/cpu.h"
-#include "gb/gameboy.h"
 #include "gb/ppu.h"
 #include "gb/timer.h"
 #include "gb/utils/log.h"
@@ -19,10 +18,13 @@
 static void mmu_write_io(struct Mmu *mmu, uint16_t address, uint8_t value);
 static uint8_t mmu_read_io(struct Mmu *mmu, uint16_t address);
 
-struct Mmu *mmu_create(struct Gameboy *gb)
+struct Mmu *mmu_create()
 {
     struct Mmu *mmu = malloc(sizeof(struct Mmu));
-    mmu->gb = gb;
+    mmu->cartridge = NULL;
+    mmu->cpu = NULL;
+    mmu->ppu = NULL;
+    mmu->timer = NULL;
 
 #if TESTS_ENABLED
     mmu->memory = malloc(sizeof(uint8_t) * 0x10000);
@@ -57,17 +59,13 @@ void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 #else
     if (address <= 0x7fff)
     {
+        cartridge_write(mmu->cartridge, address, value);
         return;
     }
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        mmu->gb->ppu->vram[address - 0x8000] = value;
-        return;
-    }
-
-    if (address >= 0xa000 && address <= 0xbfff)
-    {
+        mmu->ppu->vram[address - 0x8000] = value;
         return;
     }
 
@@ -103,7 +101,7 @@ void mmu_write(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 
     if (address == 0xffff)
     {
-        mmu->gb->cpu->interrupt_enable = value;
+        mmu->cpu->interrupt_enable = value;
         return;
     }
 
@@ -119,17 +117,12 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 
     if (address <= 0x7fff)
     {
-        return mmu->gb->cartridge->data[address];
+        return cartridge_read(mmu->cartridge, address);
     }
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        return mmu->gb->ppu->vram[address - 0x8000];
-    }
-
-    if (address >= 0xa000 && address <= 0xbfff)
-    {
-        return mmu->gb->cartridge->data[address - 0xa000];
+        return mmu->ppu->vram[address - 0x8000];
     }
 
     if (address >= 0xc000 && address <= 0xdfff)
@@ -159,7 +152,7 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 
     if (address == 0xffff)
     {
-        return mmu->gb->cpu->interrupt_enable;
+        return mmu->cpu->interrupt_enable;
     }
 
     return 0x00;
@@ -169,31 +162,27 @@ uint8_t mmu_read(struct Mmu *mmu, const uint16_t address)
 #if !TESTS_ENABLED
 static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t value)
 {
-    struct Cpu *cpu = mmu->gb->cpu;
-    struct Ppu *ppu = mmu->gb->ppu;
-    struct Timer *timer = mmu->gb->timer;
-
     switch (address)
     {
     case 0xff01: printf("%c", value); break;
     case 0xff02: break;
-    case 0xff04: timer->div = 0xff; break;
-    case 0xff05: timer->tima = value; break;
-    case 0xff06: timer->tma = value; break;
-    case 0xff07: timer->tac = value; break;
-    case 0xff0f: cpu->interrupt_flag = value; break;
-    case 0xff40: ppu->lcd_control = value; break;
-    case 0xff41: ppu->lcd_status = value; break;
-    case 0xff42: ppu->scy = value; break;
-    case 0xff43: ppu->scx = value; break;
-    case 0xff44: ppu->ly = 0x00; break; // Write will cause to reset
-    case 0xff45: ppu->lyc = value; break;
+    case 0xff04: mmu->timer->div = 0xff; break;
+    case 0xff05: mmu->timer->tima = value; break;
+    case 0xff06: mmu->timer->tma = value; break;
+    case 0xff07: mmu->timer->tac = value; break;
+    case 0xff0f: mmu->cpu->interrupt_flag = value; break;
+    case 0xff40: mmu->ppu->lcd_control = value; break;
+    case 0xff41: mmu->ppu->lcd_status = value; break;
+    case 0xff42: mmu->ppu->scy = value; break;
+    case 0xff43: mmu->ppu->scx = value; break;
+    case 0xff44: mmu->ppu->ly = 0x00; break; // Write will cause to reset
+    case 0xff45: mmu->ppu->lyc = value; break;
     case 0xff46: gb_log(GB_LOG_WARN, "Attempted to start DMA transfer\n"); break;
-    case 0xff47: ppu->bgp = value; break;
-    case 0xff48: ppu->obp0 = value; break;
-    case 0xff49: ppu->obp1 = value; break;
-    case 0xff4a: ppu->wy = value; break;
-    case 0xff4b: ppu->wx = value; break;
+    case 0xff47: mmu->ppu->bgp = value; break;
+    case 0xff48: mmu->ppu->obp0 = value; break;
+    case 0xff49: mmu->ppu->obp1 = value; break;
+    case 0xff4a: mmu->ppu->wy = value; break;
+    case 0xff4b: mmu->ppu->wx = value; break;
     default:
         mmu->io[address - 0xff00] = value;
         gb_log(GB_LOG_WARN, "Unhandled I/O-write at 0x%04x with 0x%02x\n", address, value);
@@ -203,30 +192,26 @@ static void mmu_write_io(struct Mmu *mmu, const uint16_t address, const uint8_t 
 
 static uint8_t mmu_read_io(struct Mmu *mmu, const uint16_t address)
 {
-    const struct Cpu *cpu = mmu->gb->cpu;
-    const struct Ppu *ppu = mmu->gb->ppu;
-    const struct Timer *timer = mmu->gb->timer;
-
     switch (address)
     {
     case 0xff00: return 0xff;
-    case 0xff04: return timer->div;
-    case 0xff05: return timer->tima;
-    case 0xff06: return timer->tma;
-    case 0xff07: return timer->tac;
-    case 0xff0f: return cpu->interrupt_flag;
-    case 0xff40: return ppu->lcd_control;
-    case 0xff41: return ppu->lcd_status;
-    case 0xff42: return ppu->scy;
-    case 0xff43: return ppu->scx;
-    case 0xff44: return ppu->ly;
-    case 0xff45: return ppu->lyc;
+    case 0xff04: return mmu->timer->div;
+    case 0xff05: return mmu->timer->tima;
+    case 0xff06: return mmu->timer->tma;
+    case 0xff07: return mmu->timer->tac;
+    case 0xff0f: return mmu->cpu->interrupt_flag;
+    case 0xff40: return mmu->ppu->lcd_control;
+    case 0xff41: return mmu->ppu->lcd_status;
+    case 0xff42: return mmu->ppu->scy;
+    case 0xff43: return mmu->ppu->scx;
+    case 0xff44: return mmu->ppu->ly;
+    case 0xff45: return mmu->ppu->lyc;
     case 0xff46: gb_log(GB_LOG_WARN, "Attempted to read from write-only DMA register\n"); return 0xff;
-    case 0xff47: return ppu->bgp;
-    case 0xff48: return ppu->obp0;
-    case 0xff49: return ppu->obp1;
-    case 0xff4a: return ppu->wy;
-    case 0xff4b: return ppu->wx;
+    case 0xff47: return mmu->ppu->bgp;
+    case 0xff48: return mmu->ppu->obp0;
+    case 0xff49: return mmu->ppu->obp1;
+    case 0xff4a: return mmu->ppu->wy;
+    case 0xff4b: return mmu->ppu->wx;
     default: gb_log(GB_LOG_WARN, "Unhandled I/O-Read at 0x%04x\n", address); return mmu->io[address - 0xff00];
     }
 }

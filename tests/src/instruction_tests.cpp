@@ -8,11 +8,10 @@
 #include <fstream>
 
 #include <catch2/catch_test_macros.hpp>
+#include <gb/cpu.h>
+#include <gb/gb.h>
+#include <gb/mmu.h>
 #include <nlohmann/json.hpp>
-
-#include "gb/cpu.h"
-#include "gb/gameboy.h"
-#include "gb/mmu.h"
 
 struct TestState
 {
@@ -72,11 +71,9 @@ void execute_test(const std::string &test_file)
     const nlohmann::json data = nlohmann::json::parse(f);
     const std::vector<TestData> tests = data.get<std::vector<TestData>>();
 
-    Gameboy *gameboy = gameboy_create(nullptr);
-    Mmu *mmu = mmu_create(gameboy);
-    gameboy->mmu = mmu;
-    Cpu *cpu = cpu_create(gameboy);
-    gameboy->cpu = cpu;
+    Gb *gb = gb_create(nullptr);
+    Mmu *mmu = gb->mmu;
+    Cpu *cpu = gb->cpu;
 
     for (const TestData &test : tests)
     {

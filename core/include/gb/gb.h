@@ -17,7 +17,7 @@ struct Mmu;
 struct Ppu;
 struct Timer;
 
-struct Gameboy
+struct Gb
 {
     struct Cartridge *cartridge;
     struct Mmu *mmu;
@@ -26,10 +26,10 @@ struct Gameboy
     struct Timer *timer;
 };
 
-struct Gameboy *gameboy_create(const char *rom);
-void gameboy_destroy(struct Gameboy *);
+struct Gb *gb_create(const char *rom);
+void gb_destroy(struct Gb *);
 
-void gameboy_run_frame(struct Gameboy *);
+void gb_run_frame(struct Gb *);
 
 #ifdef __cplusplus
 }

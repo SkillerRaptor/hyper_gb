@@ -13,11 +13,17 @@ extern "C"
 {
 #endif
 
-struct Gameboy;
+struct Cartridge;
+struct Cpu;
+struct Ppu;
+struct Timer;
 
 struct Mmu
 {
-    struct Gameboy *gb;
+    struct Cartridge *cartridge;
+    struct Cpu *cpu;
+    struct Ppu *ppu;
+    struct Timer *timer;
 
 #if TESTS_ENABLED
     uint8_t *memory;
@@ -29,7 +35,7 @@ struct Mmu
 #endif
 };
 
-struct Mmu *mmu_create(struct Gameboy *gb);
+struct Mmu *mmu_create();
 void mmu_destroy(struct Mmu *);
 
 void mmu_write(struct Mmu *, uint16_t address, uint8_t value);

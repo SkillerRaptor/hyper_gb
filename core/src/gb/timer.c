@@ -11,7 +11,7 @@
 
 #include "gb/cpu.h"
 #include "gb/definitions.h"
-#include "gb/gameboy.h"
+#include "gb/gb.h"
 #include "gb/utils/bits.h"
 #include "gb/utils/log.h"
 
@@ -22,10 +22,10 @@
 static bool timer_is_enabled(struct Timer *);
 static uint32_t timer_get_frequency(struct Timer *);
 
-struct Timer *timer_create(struct Gameboy *gb)
+struct Timer *timer_create()
 {
-    struct Timer *timer = malloc(sizeof(struct Gameboy));
-    timer->gb = gb;
+    struct Timer *timer = malloc(sizeof(struct Timer));
+    timer->cpu = NULL;
     timer->div_counter = 0;
     timer->counter = 0;
     timer->div = 0;
@@ -65,7 +65,7 @@ void timer_tick(struct Timer *timer, const uint8_t t_cycles)
         if (timer->tima == 0)
         {
             timer->tima = timer->tma;
-            GB_BIT_SET(timer->gb->cpu->interrupt_flag, 2);
+            GB_BIT_SET(timer->cpu->interrupt_flag, 2);
         }
     }
 }

@@ -9,7 +9,12 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 #include <cimgui_impl.h>
-#include <gb.h>
+#include <gb/cpu.h>
+#include <gb/definitions.h>
+#include <gb/gb.h>
+#include <gb/mmu.h>
+#include <gb/ppu.h>
+#include <gb/utils/bits.h>
 #include <stdlib.h>
 
 #define TILE_DATA_WIDTH 24
@@ -78,7 +83,7 @@ void emulator_destroy(struct Emulator *emulator)
 
     if (emulator->gb)
     {
-        gameboy_destroy(emulator->gb);
+        gb_destroy(emulator->gb);
     }
 
     SDL_DestroyTexture(emulator->oam_texture);
@@ -268,7 +273,7 @@ void emulator_update(struct Emulator *emulator)
 {
     if (emulator->gb)
     {
-        gameboy_run_frame(emulator->gb);
+        gb_run_frame(emulator->gb);
     }
 }
 
@@ -434,10 +439,10 @@ static void file_callback(void *user_data, const char *const *file_list, const i
 
     if (emulator->gb)
     {
-        gameboy_destroy(emulator->gb);
+        gb_destroy(emulator->gb);
     }
 
-    emulator->gb = gameboy_create(file_list[0]);
+    emulator->gb = gb_create(file_list[0]);
 }
 
 void emulator_render_imgui(struct Emulator *emulator)

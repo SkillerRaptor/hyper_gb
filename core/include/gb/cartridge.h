@@ -15,13 +15,14 @@ extern "C"
 
 struct Cartridge
 {
-    uint8_t *data;
+    uint8_t *rom;
 };
 
 struct Cartridge *cartridge_create(const char *rom);
 void cartridge_destroy(struct Cartridge *);
 
-char *cartridge_get_title(const struct Cartridge *);
+void cartridge_write(struct Cartridge *, uint16_t address, uint8_t value);
+uint8_t cartridge_read(const struct Cartridge *, uint16_t address);
 
 #ifdef __cplusplus
 }

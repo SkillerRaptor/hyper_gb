@@ -10,9 +10,7 @@
 
 #include "gb/cpu.h"
 #include "gb/definitions.h"
-#include "gb/gameboy.h"
 #include "gb/mmu.h"
-#include "gb/prerequisites.h"
 #include "gb/utils/bits.h"
 #include "gb/utils/log.h"
 
@@ -21,10 +19,11 @@
 #define PPU_MODE_H_BLANK_DOTS 204
 #define PPU_MODE_V_BLANK_DOTS 4560
 
-struct Ppu *ppu_create(struct Gameboy *gb)
+struct Ppu *ppu_create()
 {
     struct Ppu *ppu = malloc(sizeof(struct Ppu));
-    ppu->gb = gb;
+    ppu->mmu = NULL;
+    ppu->cpu = NULL;
     ppu->vram = calloc(1, sizeof(uint8_t) * 0x2000);
     ppu->lcd_control = 0;
     ppu->lcd_status = 0;
@@ -73,7 +72,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
             bool hblank_interrupt = GB_BIT_CHECK(ppu->lcd_status, 3);
             if (hblank_interrupt)
             {
-                GB_BIT_SET(ppu->gb->cpu->interrupt_flag, 1);
+                GB_BIT_SET(ppu->cpu->interrupt_flag, 1);
             }
 
             // Draw Scanline
@@ -105,7 +104,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
                     const uint32_t tile_index = tile_y * TILES_PER_LINE + tile_x;
                     const uint32_t tile_id_address = tile_map_address + tile_index;
 
-                    const uint8_t tile_id = mmu_read(ppu->gb->mmu, tile_id_address);
+                    const uint8_t tile_id = mmu_read(ppu->mmu, tile_id_address);
 
 #define TILE_BYTES (2 * 8)
                     const uint32_t tile_data_memory_offset = GB_BIT_CHECK(ppu->lcd_control, 4)
@@ -116,8 +115,8 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
                     const uint32_t tile_line_data_start_address
                         = tile_set_address + tile_data_memory_offset + tile_data_line_offset;
 
-                    const uint8_t pixels_1 = mmu_read(ppu->gb->mmu, tile_line_data_start_address);
-                    const uint8_t pixels_2 = mmu_read(ppu->gb->mmu, tile_line_data_start_address + 1);
+                    const uint8_t pixels_1 = mmu_read(ppu->mmu, tile_line_data_start_address);
+                    const uint8_t pixels_2 = mmu_read(ppu->mmu, tile_line_data_start_address + 1);
 
                     const uint8_t color
                         = (GB_BIT_VALUE(pixels_2, 7 - tile_pixel_x) << 1) | GB_BIT_VALUE(pixels_1, 7 - tile_pixel_x);
@@ -141,7 +140,7 @@ void ppu_tick(struct Ppu *ppu, const uint8_t t_cycles)
             if (ppu->ly >= 0x90)
             {
                 ppu->mode = PPU_MODE_V_BLANK;
-                GB_BIT_SET(ppu->gb->cpu->interrupt_flag, 0);
+                GB_BIT_SET(ppu->cpu->interrupt_flag, 0);
             }
             else
             {

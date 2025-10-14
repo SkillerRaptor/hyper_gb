@@ -8,7 +8,7 @@
 
 #include <SDL3/SDL.h>
 
-struct Gameboy;
+struct Gb;
 
 struct Emulator
 {
@@ -23,7 +23,7 @@ struct Emulator
     SDL_Texture *oam_texture;
 
     // GameBoy
-    struct Gameboy *gb;
+    struct Gb *gb;
 
     // Others
     bool should_close;
