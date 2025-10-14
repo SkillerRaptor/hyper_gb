@@ -13,4 +13,4 @@
 #include "gb/ppu.h"
 #include "gb/timer.h"
 #include "gb/utils/bits.h"
-#include "gb/utils/logger.h"
+#include "gb/utils/log.h"

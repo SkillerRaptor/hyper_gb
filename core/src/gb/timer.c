@@ -13,7 +13,7 @@
 #include "gb/definitions.h"
 #include "gb/gameboy.h"
 #include "gb/utils/bits.h"
-#include "gb/utils/logger.h"
+#include "gb/utils/log.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
 #define GB_DIVIDER_HZ 16384.0

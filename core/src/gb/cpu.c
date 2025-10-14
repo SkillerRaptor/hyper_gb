@@ -13,7 +13,7 @@
 #include "gb/gameboy.h"
 #include "gb/mmu.h"
 #include "gb/utils/bits.h"
-#include "gb/utils/logger.h"
+#include "gb/utils/log.h"
 
 static uint8_t cpu_execute_opcode(struct Cpu *cpu, uint8_t opcode);
 static uint8_t cpu_execute_cb_opcode(struct Cpu *cpu, uint8_t opcode);
@@ -523,7 +523,7 @@ static uint8_t cpu_execute_opcode(struct Cpu *cpu, const uint8_t opcode)
     case 0xfb: return cpu_ei(cpu);
     case 0xfe: return cpu_cp_a_n8(cpu);
     case 0xff: return cpu_rst_vec(cpu, RST_38);
-    default: gb_logger_err("Invalid instruction encountered: 0x%02x", opcode); return 0;
+    default: gb_log(GB_LOG_ERROR, "Invalid instruction encountered: 0x%02x\n", opcode); return 0;
     }
 }
 
@@ -787,6 +787,6 @@ static uint8_t cpu_execute_cb_opcode(struct Cpu *cpu, const uint8_t opcode)
     case 0xfd: return cpu_set_u3_r8(cpu, 7, R8_L);
     case 0xfe: return cpu_set_u3_hl(cpu, 7);
     case 0xff: return cpu_set_u3_r8(cpu, 7, R8_A);
-    default: gb_logger_err("Invalid instruction encountered: 0xcb 0x%02x", opcode); return 0;
+    default: gb_log(GB_LOG_ERROR, "Invalid instruction encountered: 0xcb 0x%02x\n", opcode); return 0;
     }
 }

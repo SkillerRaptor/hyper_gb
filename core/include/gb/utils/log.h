@@ -11,10 +11,15 @@ extern "C"
 {
 #endif
 
-void gb_logger_info(const char *fmt, ...);
-void gb_logger_warn(const char *fmt, ...);
-void gb_logger_err(const char *fmt, ...);
-void gb_logger_dbg(const char *fmt, ...);
+enum GbLogLevel
+{
+    GB_LOG_ERROR = 0,
+    GB_LOG_WARN,
+    GB_LOG_INFO,
+    GB_LOG_DEBUG,
+};
+
+void gb_log(enum GbLogLevel, const char *fmt, ...);
 
 #ifdef __cplusplus
 }

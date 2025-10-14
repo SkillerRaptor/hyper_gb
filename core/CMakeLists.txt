@@ -11,7 +11,7 @@ set(SOURCES
         src/gb/mmu.c
         src/gb/ppu.c
         src/gb/timer.c
-        src/gb/utils/logger.c)
+        src/gb/utils/log.c)
 
 set(HEADERS
         include/gb.h
@@ -25,7 +25,7 @@ set(HEADERS
         include/gb/prerequisites.h
         include/gb/timer.h
         include/gb/utils/bits.h
-        include/gb/utils/logger.h)
+        include/gb/utils/log.h)
 
 add_library(gb_core STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(gb_core PRIVATE ProjectWarnings)

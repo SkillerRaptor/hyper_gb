@@ -14,7 +14,7 @@
 #include "gb/mmu.h"
 #include "gb/ppu.h"
 #include "gb/timer.h"
-#include "gb/utils/logger.h"
+#include "gb/utils/log.h"
 
 struct Gameboy *gameboy_create(const char *rom)
 {
@@ -28,7 +28,7 @@ struct Gameboy *gameboy_create(const char *rom)
     if (gameboy->cartridge)
     {
         char *cartridge_title = cartridge_get_title(gameboy->cartridge);
-        gb_logger_info("Loaded cartridge '%s'", cartridge_title);
+        gb_log(GB_LOG_INFO, "Loaded cartridge '%s'\n", cartridge_title);
         free(cartridge_title);
     }
 
