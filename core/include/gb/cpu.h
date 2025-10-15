@@ -97,6 +97,15 @@ enum GbRst
     GB_RST_38 = 0x38,
 };
 
+enum GbInterrupt
+{
+    GB_INTERRUPT_VBLANK,
+    GB_INTERRUPT_LCD,
+    GB_INTERRUPT_TIMER,
+    GB_INTERRUPT_SERIAL,
+    GB_INTERRUPT_JOYPAD,
+};
+
 struct GbCpu
 {
     struct GbMmu *mmu;
@@ -110,7 +119,7 @@ struct GbCpu
     uint8_t interrupt_flag; // IF
 };
 
-struct GbCpu *gb_cpu_create();
+struct GbCpu *gb_cpu_create(void);
 void gb_cpu_destroy(struct GbCpu *);
 
 void gb_cpu_set_register8(struct GbCpu *, enum GbRegister8, uint8_t);
@@ -127,9 +136,11 @@ bool gb_cpu_is_condition(struct GbCpu *, enum GbConditionCode);
 void gb_cpu_push_stack(struct GbCpu *, uint16_t);
 uint16_t gb_cpu_pop_stack(struct GbCpu *);
 
-int8_t gb_cpu_fetch_i8(struct GbCpu *cpu);
-uint8_t gb_cpu_fetch_u8(struct GbCpu *cpu);
-uint16_t gb_cpu_fetch_u16(struct GbCpu *cpu);
+int8_t gb_cpu_fetch_i8(struct GbCpu *);
+uint8_t gb_cpu_fetch_u8(struct GbCpu *);
+uint16_t gb_cpu_fetch_u16(struct GbCpu *);
+
+void gb_cpu_request_interrupt(struct GbCpu *, enum GbInterrupt);
 
 uint8_t gb_cpu_tick(struct GbCpu *);
 

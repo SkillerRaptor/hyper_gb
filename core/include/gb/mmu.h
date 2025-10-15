@@ -35,7 +35,7 @@ struct GbMmu
 #endif
 };
 
-struct GbMmu *gb_mmu_create();
+struct GbMmu *gb_mmu_create(void);
 void gb_mmu_destroy(struct GbMmu *);
 
 void gb_mmu_write(struct GbMmu *, uint16_t address, uint8_t value);

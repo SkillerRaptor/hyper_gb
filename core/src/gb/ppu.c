@@ -12,14 +12,13 @@
 #include "gb/definitions.h"
 #include "gb/mmu.h"
 #include "gb/utils/bits.h"
-#include "gb/utils/log.h"
 
 #define PPU_MODE_OAM_SCAN_DOTS 80
 #define PPU_MODE_DRAWING_DOTS 289
 #define PPU_MODE_H_BLANK_DOTS 204
 #define PPU_MODE_V_BLANK_DOTS 4560
 
-struct GbPpu *gb_ppu_create()
+struct GbPpu *gb_ppu_create(void)
 {
     struct GbPpu *ppu = malloc(sizeof(struct GbPpu));
     ppu->mmu = NULL;
@@ -50,6 +49,10 @@ void gb_ppu_destroy(struct GbPpu *ppu)
     free(ppu);
 }
 
+void gb_ppu_write(struct GbPpu *ppu, const uint16_t address, const uint8_t value) { ppu->vram[address] = value; }
+
+uint8_t gb_ppu_read(struct GbPpu *ppu, const uint16_t address) { return ppu->vram[address]; }
+
 void gb_ppu_tick(struct GbPpu *ppu, const uint8_t t_cycles)
 {
     ppu->dots_counter += t_cycles;
@@ -69,10 +72,10 @@ void gb_ppu_tick(struct GbPpu *ppu, const uint8_t t_cycles)
             ppu->dots_counter -= PPU_MODE_DRAWING_DOTS;
             ppu->mode = GB_PPU_MODE_H_BLANK;
 
-            bool hblank_interrupt = GB_BIT_CHECK(ppu->lcd_status, 3);
+            const bool hblank_interrupt = GB_BIT_CHECK(ppu->lcd_status, 3);
             if (hblank_interrupt)
             {
-                GB_BIT_SET(ppu->cpu->interrupt_flag, 1);
+                gb_cpu_request_interrupt(ppu->cpu, GB_INTERRUPT_LCD);
             }
 
             // Draw Scanline
@@ -140,7 +143,7 @@ void gb_ppu_tick(struct GbPpu *ppu, const uint8_t t_cycles)
             if (ppu->ly >= 0x90)
             {
                 ppu->mode = GB_PPU_MODE_V_BLANK;
-                GB_BIT_SET(ppu->cpu->interrupt_flag, 0);
+                gb_cpu_request_interrupt(ppu->cpu, 0);
             }
             else
             {

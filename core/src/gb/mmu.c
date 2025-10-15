@@ -18,7 +18,7 @@
 static void mmu_write_io(struct GbMmu *mmu, uint16_t address, uint8_t value);
 static uint8_t mmu_read_io(struct GbMmu *mmu, uint16_t address);
 
-struct GbMmu *gb_mmu_create()
+struct GbMmu *gb_mmu_create(void)
 {
     struct GbMmu *mmu = malloc(sizeof(struct GbMmu));
     mmu->cartridge = NULL;
@@ -65,17 +65,13 @@ void gb_mmu_write(struct GbMmu *mmu, const uint16_t address, const uint8_t value
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        mmu->ppu->vram[address - 0x8000] = value;
+        gb_ppu_write(mmu->ppu, address - 0x8000, value);
         return;
     }
+
+    // FIXME: Implement 0xa000-0xbfff - External RAM
 
     if (address >= 0xc000 && address <= 0xdfff)
-    {
-        mmu->wram[address - 0xc000] = value;
-        return;
-    }
-
-    if (address >= 0xe000 && address <= 0xfdff)
     {
         mmu->wram[address - 0xc000] = value;
         return;
@@ -122,15 +118,12 @@ uint8_t gb_mmu_read(struct GbMmu *mmu, const uint16_t address)
 
     if (address >= 0x8000 && address <= 0x9fff)
     {
-        return mmu->ppu->vram[address - 0x8000];
+        return gb_ppu_read(mmu->ppu, address - 0x8000);
     }
+
+    // FIXME: Implement 0xa000-0xbfff - External RAM
 
     if (address >= 0xc000 && address <= 0xdfff)
-    {
-        return mmu->wram[address - 0xc000];
-    }
-
-    if (address >= 0xe000 && address <= 0xfdff)
     {
         return mmu->wram[address - 0xc000];
     }

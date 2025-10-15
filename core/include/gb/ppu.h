@@ -60,8 +60,11 @@ struct GbPpu
     enum GbColor *screen;
 };
 
-struct GbPpu *gb_ppu_create();
+struct GbPpu *gb_ppu_create(void);
 void gb_ppu_destroy(struct GbPpu *);
+
+void gb_ppu_write(struct GbPpu *, uint16_t address, uint8_t value);
+uint8_t gb_ppu_read(struct GbPpu *, uint16_t address);
 
 void gb_ppu_tick(struct GbPpu *, uint8_t t_cycles);
 

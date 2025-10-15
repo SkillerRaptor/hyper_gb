@@ -71,4 +71,4 @@ void gb_cartridge_write(struct GbCartridge *cartridge, const uint16_t address, c
     (void) value;
 }
 
-uint8_t gb_cartridge_read(const struct GbCartridge *cartridge, const uint16_t address) { return cartridge->rom[address]; }
+uint8_t gb_cartridge_read(struct GbCartridge *cartridge, const uint16_t address) { return cartridge->rom[address]; }

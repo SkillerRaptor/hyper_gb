@@ -11,18 +11,13 @@
 
 #include "gb/cpu.h"
 #include "gb/definitions.h"
-#include "gb/gb.h"
 #include "gb/utils/bits.h"
-#include "gb/utils/log.h"
 
 // This defines how many M-Cycles correspond to T-Cycles
 #define GB_DIVIDER_HZ 16384.0
 #define GB_DIVIDER_CYCLES (GB_MASTER_CLOCK_HZ / GB_DIVIDER_HZ)
 
-static bool timer_is_enabled(struct GbTimer *);
-static uint32_t timer_get_frequency(struct GbTimer *);
-
-struct GbTimer *gb_timer_create()
+struct GbTimer *gb_timer_create(void)
 {
     struct GbTimer *timer = malloc(sizeof(struct GbTimer));
     timer->cpu = NULL;
@@ -38,6 +33,21 @@ struct GbTimer *gb_timer_create()
 
 void gb_timer_destroy(struct GbTimer *timer) { free(timer); }
 
+static bool is_enabled(struct GbTimer *timer) { return GB_BIT_CHECK(timer->tac, 2); }
+
+static uint32_t get_frequency(struct GbTimer *timer)
+{
+    const uint8_t clock = timer->tac & 0b11;
+    switch (clock)
+    {
+    case 0b00: return 4096;
+    case 0b01: return 262144;
+    case 0b10: return 65536;
+    case 0b11: return 16384;
+    default: return 0;
+    }
+}
+
 void gb_timer_tick(struct GbTimer *timer, const uint8_t t_cycles)
 {
     // DIV is incremented at a rate of 16384Hz which is equal to 256 t-cycles or 64 m-cycles
@@ -48,14 +58,14 @@ void gb_timer_tick(struct GbTimer *timer, const uint8_t t_cycles)
         timer->div_counter -= (uint16_t) GB_DIVIDER_CYCLES;
     }
 
-    if (!timer_is_enabled(timer))
+    if (!is_enabled(timer))
     {
         return;
     }
 
     timer->counter += t_cycles;
 
-    const uint16_t frequency = (uint16_t) (GB_MASTER_CLOCK_HZ / timer_get_frequency(timer));
+    const uint16_t frequency = (uint16_t) (GB_MASTER_CLOCK_HZ / get_frequency(timer));
     while (timer->counter >= frequency)
     {
         timer->tima += 1;
@@ -65,22 +75,7 @@ void gb_timer_tick(struct GbTimer *timer, const uint8_t t_cycles)
         if (timer->tima == 0)
         {
             timer->tima = timer->tma;
-            GB_BIT_SET(timer->cpu->interrupt_flag, 2);
+            gb_cpu_request_interrupt(timer->cpu, GB_INTERRUPT_TIMER);
         }
-    }
-}
-
-static bool timer_is_enabled(struct GbTimer *timer) { return ((timer->tac >> 2) & 0b1) != 0; }
-
-static uint32_t timer_get_frequency(struct GbTimer *timer)
-{
-    const uint8_t clock = timer->tac & 0b11;
-    switch (clock)
-    {
-    case 0b00: return 4096;
-    case 0b01: return 262144;
-    case 0b10: return 65536;
-    case 0b11: return 16384;
-    default: return 0;
     }
 }

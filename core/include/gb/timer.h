@@ -29,7 +29,7 @@ struct GbTimer
     uint8_t tac; // 0xff07 - Timer control
 };
 
-struct GbTimer *gb_timer_create();
+struct GbTimer *gb_timer_create(void);
 void gb_timer_destroy(struct GbTimer *);
 
 void gb_timer_tick(struct GbTimer *, uint8_t t_cycles);

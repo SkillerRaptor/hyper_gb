@@ -17,7 +17,7 @@
 static uint8_t cpu_execute_opcode(struct GbCpu *cpu, uint8_t opcode);
 static uint8_t cpu_execute_cb_opcode(struct GbCpu *cpu, uint8_t opcode);
 
-struct GbCpu *gb_cpu_create()
+struct GbCpu *gb_cpu_create(void)
 {
     struct GbCpu *cpu = malloc(sizeof(struct GbCpu));
     cpu->mmu = NULL;
@@ -166,6 +166,19 @@ uint16_t gb_cpu_fetch_u16(struct GbCpu *cpu)
     const uint16_t higher_byte = gb_cpu_fetch_u8(cpu);
 
     return (higher_byte << 8) | lower_byte;
+}
+
+void gb_cpu_request_interrupt(struct GbCpu *cpu, const enum GbInterrupt interrupt)
+{
+    switch (interrupt)
+    {
+    case GB_INTERRUPT_VBLANK: GB_BIT_SET(cpu->interrupt_flag, 0); break;
+    case GB_INTERRUPT_LCD: GB_BIT_SET(cpu->interrupt_flag, 1); break;
+    case GB_INTERRUPT_TIMER: GB_BIT_SET(cpu->interrupt_flag, 2); break;
+    case GB_INTERRUPT_SERIAL: GB_BIT_SET(cpu->interrupt_flag, 3); break;
+    case GB_INTERRUPT_JOYPAD: GB_BIT_SET(cpu->interrupt_flag, 4); break;
+    default: break;
+    }
 }
 
 static void cpu_handle_interrupts(struct GbCpu *cpu)
