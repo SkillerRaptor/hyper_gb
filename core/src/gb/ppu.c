@@ -53,9 +53,9 @@ void gb_ppu_write(struct GbPpu *ppu, const uint16_t address, const uint8_t value
 
 uint8_t gb_ppu_read(struct GbPpu *ppu, const uint16_t address) { return ppu->vram[address]; }
 
-static void handle_oam_scan(struct GbPpu *ppu) {}
+static void handle_oam_scan(struct GbPpu *ppu) { }
 
-static void handle_drawing(struct GbPpu *ppu) {}
+static void handle_drawing(struct GbPpu *ppu) { }
 
 static void handle_hblank(struct GbPpu *ppu)
 {
@@ -97,16 +97,19 @@ static void handle_hblank(struct GbPpu *ppu)
             const uint8_t tile_id = gb_mmu_read(ppu->mmu, tile_id_address);
 
 #define TILE_BYTES (2 * 8)
-            const uint32_t tile_data_memory_offset
-                = GB_BIT_CHECK(ppu->lcd_control, 4) ? (tile_id * TILE_BYTES) : ((((int8_t) tile_id) + 128) * TILE_BYTES);
+            const uint32_t tile_data_memory_offset = GB_BIT_CHECK(ppu->lcd_control, 4)
+                ? (tile_id * TILE_BYTES)
+                : ((((int8_t) tile_id) + 128) * TILE_BYTES);
             const uint32_t tile_data_line_offset = tile_pixel_y * 2;
 
-            const uint32_t tile_line_data_start_address = tile_set_address + tile_data_memory_offset + tile_data_line_offset;
+            const uint32_t tile_line_data_start_address
+                = tile_set_address + tile_data_memory_offset + tile_data_line_offset;
 
             const uint8_t pixels_1 = gb_mmu_read(ppu->mmu, tile_line_data_start_address);
             const uint8_t pixels_2 = gb_mmu_read(ppu->mmu, tile_line_data_start_address + 1);
 
-            const uint8_t color = (GB_BIT_VALUE(pixels_2, 7 - tile_pixel_x) << 1) | GB_BIT_VALUE(pixels_1, 7 - tile_pixel_x);
+            const uint8_t color
+                = (GB_BIT_VALUE(pixels_2, 7 - tile_pixel_x) << 1) | GB_BIT_VALUE(pixels_1, 7 - tile_pixel_x);
             ppu->screen[y * GB_SCREEN_WIDTH + x] = (enum GbColor) color;
         }
     }
@@ -176,6 +179,7 @@ void gb_ppu_tick(struct GbPpu *ppu, const uint8_t t_cycles)
             }
         }
         break;
-    default: break;
+    default:
+        break;
     }
 }

@@ -41,8 +41,16 @@ static void vlog(const enum GbLogLevel level, const char *fmt, const va_list arg
     const char *level_color = s_level_colors[level];
     const char *level_name = s_level_names[level];
 
-    printf("\033[38;2;69;69;69m%04d-%02d-%02dT%02d:%02d:%02d %s%s \033[38;2;211;211;211m", year, month, day, hour, minute,
-        second, level_color, level_name);
+    printf(
+        "\033[38;2;69;69;69m%04d-%02d-%02dT%02d:%02d:%02d %s%s \033[38;2;211;211;211m",
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second,
+        level_color,
+        level_name);
     vprintf(fmt, args);
 }
 

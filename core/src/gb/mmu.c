@@ -157,25 +157,62 @@ static void mmu_write_io(struct GbMmu *mmu, const uint16_t address, const uint8_
 {
     switch (address)
     {
-    case 0xff01: printf("%c", value); break;
-    case 0xff02: break;
-    case 0xff04: mmu->timer->div = 0xff; break;
-    case 0xff05: mmu->timer->tima = value; break;
-    case 0xff06: mmu->timer->tma = value; break;
-    case 0xff07: mmu->timer->tac = value; break;
-    case 0xff0f: mmu->cpu->interrupt_flag = value; break;
-    case 0xff40: mmu->ppu->lcd_control = value; break;
-    case 0xff41: mmu->ppu->lcd_status = value; break;
-    case 0xff42: mmu->ppu->scy = value; break;
-    case 0xff43: mmu->ppu->scx = value; break;
-    case 0xff44: mmu->ppu->ly = 0x00; break; // Write will cause to reset
-    case 0xff45: mmu->ppu->lyc = value; break;
-    case 0xff46: gb_log(GB_LOG_WARN, "Attempted to start DMA transfer\n"); break;
-    case 0xff47: mmu->ppu->bgp = value; break;
-    case 0xff48: mmu->ppu->obp0 = value; break;
-    case 0xff49: mmu->ppu->obp1 = value; break;
-    case 0xff4a: mmu->ppu->wy = value; break;
-    case 0xff4b: mmu->ppu->wx = value; break;
+    case 0xff01:
+        printf("%c", value);
+        break;
+    case 0xff02:
+        break;
+    case 0xff04:
+        mmu->timer->div = 0xff;
+        break;
+    case 0xff05:
+        mmu->timer->tima = value;
+        break;
+    case 0xff06:
+        mmu->timer->tma = value;
+        break;
+    case 0xff07:
+        mmu->timer->tac = value;
+        break;
+    case 0xff0f:
+        mmu->cpu->interrupt_flag = value;
+        break;
+    case 0xff40:
+        mmu->ppu->lcd_control = value;
+        break;
+    case 0xff41:
+        mmu->ppu->lcd_status = value;
+        break;
+    case 0xff42:
+        mmu->ppu->scy = value;
+        break;
+    case 0xff43:
+        mmu->ppu->scx = value;
+        break;
+    case 0xff44:
+        mmu->ppu->ly = 0x00;
+        break; // Write will cause to reset
+    case 0xff45:
+        mmu->ppu->lyc = value;
+        break;
+    case 0xff46:
+        gb_log(GB_LOG_WARN, "Attempted to start DMA transfer\n");
+        break;
+    case 0xff47:
+        mmu->ppu->bgp = value;
+        break;
+    case 0xff48:
+        mmu->ppu->obp0 = value;
+        break;
+    case 0xff49:
+        mmu->ppu->obp1 = value;
+        break;
+    case 0xff4a:
+        mmu->ppu->wy = value;
+        break;
+    case 0xff4b:
+        mmu->ppu->wx = value;
+        break;
     default:
         mmu->io[address - 0xff00] = value;
         gb_log(GB_LOG_WARN, "Unhandled I/O-write at 0x%04x with 0x%02x\n", address, value);
@@ -187,25 +224,46 @@ static uint8_t mmu_read_io(struct GbMmu *mmu, const uint16_t address)
 {
     switch (address)
     {
-    case 0xff00: return 0xff;
-    case 0xff04: return mmu->timer->div;
-    case 0xff05: return mmu->timer->tima;
-    case 0xff06: return mmu->timer->tma;
-    case 0xff07: return mmu->timer->tac;
-    case 0xff0f: return mmu->cpu->interrupt_flag;
-    case 0xff40: return mmu->ppu->lcd_control;
-    case 0xff41: return mmu->ppu->lcd_status;
-    case 0xff42: return mmu->ppu->scy;
-    case 0xff43: return mmu->ppu->scx;
-    case 0xff44: return mmu->ppu->ly;
-    case 0xff45: return mmu->ppu->lyc;
-    case 0xff46: gb_log(GB_LOG_WARN, "Attempted to read from write-only DMA register\n"); return 0xff;
-    case 0xff47: return mmu->ppu->bgp;
-    case 0xff48: return mmu->ppu->obp0;
-    case 0xff49: return mmu->ppu->obp1;
-    case 0xff4a: return mmu->ppu->wy;
-    case 0xff4b: return mmu->ppu->wx;
-    default: gb_log(GB_LOG_WARN, "Unhandled I/O-Read at 0x%04x\n", address); return mmu->io[address - 0xff00];
+    case 0xff00:
+        return 0xff;
+    case 0xff04:
+        return mmu->timer->div;
+    case 0xff05:
+        return mmu->timer->tima;
+    case 0xff06:
+        return mmu->timer->tma;
+    case 0xff07:
+        return mmu->timer->tac;
+    case 0xff0f:
+        return mmu->cpu->interrupt_flag;
+    case 0xff40:
+        return mmu->ppu->lcd_control;
+    case 0xff41:
+        return mmu->ppu->lcd_status;
+    case 0xff42:
+        return mmu->ppu->scy;
+    case 0xff43:
+        return mmu->ppu->scx;
+    case 0xff44:
+        return mmu->ppu->ly;
+    case 0xff45:
+        return mmu->ppu->lyc;
+    case 0xff46:
+        gb_log(GB_LOG_WARN, "Attempted to read from write-only DMA register\n");
+        return 0xff;
+    case 0xff47:
+        return mmu->ppu->bgp;
+    case 0xff48:
+        return mmu->ppu->obp0;
+    case 0xff49:
+        return mmu->ppu->obp1;
+    case 0xff4a:
+        return mmu->ppu->wy;
+    case 0xff4b:
+        return mmu->ppu->wx;
+    default:
+        gb_log(GB_LOG_WARN, "Unhandled I/O-Read at 0x%04x\n", address);
+        return mmu->io[address - 0xff00];
     }
 }
 #endif

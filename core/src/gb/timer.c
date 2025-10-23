@@ -40,11 +40,16 @@ static uint32_t get_frequency(struct GbTimer *timer)
     const uint8_t clock = timer->tac & 0b11;
     switch (clock)
     {
-    case 0b00: return 4096;
-    case 0b01: return 262144;
-    case 0b10: return 65536;
-    case 0b11: return 16384;
-    default: return 0;
+    case 0b00:
+        return 4096;
+    case 0b01:
+        return 262144;
+    case 0b10:
+        return 65536;
+    case 0b11:
+        return 16384;
+    default:
+        return 0;
     }
 }
 

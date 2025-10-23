@@ -36,7 +36,8 @@ static void emulator_render_textures(struct Emulator *);
 
 static void emulator_render_game_screen_texture(struct Emulator *);
 
-static void render_tile(uint32_t x, uint32_t y, const uint8_t *vram, uint32_t vram_offset, uint32_t width, uint32_t *pixels);
+static void
+    render_tile(uint32_t x, uint32_t y, const uint8_t *vram, uint32_t vram_offset, uint32_t width, uint32_t *pixels);
 static void emulator_render_tile_data_texture(struct Emulator *);
 static void emulator_render_tile_maps_texture(struct Emulator *);
 static void emulator_render_oam_texture(struct Emulator *);
@@ -263,8 +264,11 @@ void emulator_poll_events(struct Emulator *emulator)
 
         switch (event.type)
         {
-        case SDL_EVENT_QUIT: emulator->should_close = true; break;
-        default: break;
+        case SDL_EVENT_QUIT:
+            emulator->should_close = true;
+            break;
+        default:
+            break;
         }
     }
 }
@@ -304,11 +308,20 @@ void emulator_render_game_screen_texture(struct Emulator *emulator)
         uint32_t color = 0xff000000;
         switch (color_enum)
         {
-        case GB_COLOR_WHITE: color = 0xff000000; break;
-        case GB_COLOR_LIGHT_GRAY: color = 0xff555555; break;
-        case GB_COLOR_DARK_GRAY: color = 0xffaaaaaa; break;
-        case GB_COLOR_BLACK: color = 0xffffffff; break;
-        default: break;
+        case GB_COLOR_WHITE:
+            color = 0xff000000;
+            break;
+        case GB_COLOR_LIGHT_GRAY:
+            color = 0xff555555;
+            break;
+        case GB_COLOR_DARK_GRAY:
+            color = 0xffaaaaaa;
+            break;
+        case GB_COLOR_BLACK:
+            color = 0xffffffff;
+            break;
+        default:
+            break;
         }
 
         pixels[i] = color;
@@ -317,7 +330,8 @@ void emulator_render_game_screen_texture(struct Emulator *emulator)
     SDL_UnlockTexture(emulator->game_screen_texture);
 }
 
-void render_tile(const uint32_t x,
+void render_tile(
+    const uint32_t x,
     const uint32_t y,
     const uint8_t *vram,
     const uint32_t vram_offset,
@@ -343,11 +357,20 @@ void render_tile(const uint32_t x,
             uint32_t color = 0xff000000;
             switch (color_bits)
             {
-            case 0b00: color = 0xff000000; break;
-            case 0b01: color = 0xff555555; break;
-            case 0b10: color = 0xffaaaaaa; break;
-            case 0b11: color = 0xffffffff; break;
-            default: break;
+            case 0b00:
+                color = 0xff000000;
+                break;
+            case 0b01:
+                color = 0xff555555;
+                break;
+            case 0b10:
+                color = 0xffaaaaaa;
+                break;
+            case 0b11:
+                color = 0xffffffff;
+                break;
+            default:
+                break;
             }
 
             pixels[((width * GB_TILE_SIZE) * real_y) + real_x] = color;
@@ -496,8 +519,11 @@ void emulator_render_imgui(struct Emulator *emulator)
         igDockBuilderFinish(dockspace_id);
     }
 
-    igDockSpace(dockspace_id, (ImVec2) { .x = 0.0f, .y = 0.0f },
-        ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_PassthruCentralNode, NULL);
+    igDockSpace(
+        dockspace_id,
+        (ImVec2) { .x = 0.0f, .y = 0.0f },
+        ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_PassthruCentralNode,
+        NULL);
 
     if (igBeginMenuBar())
     {
@@ -537,7 +563,8 @@ void emulator_show_cpu_state(struct Emulator *emulator)
     igBegin("CPU State", NULL, ImGuiWindowFlags_NoScrollbar);
 
     igSeparatorText("Registers");
-    if (igBeginTable("Registers", 4, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, (ImVec2) { 0.0f, 0.0f }, 0.0f))
+    if (igBeginTable(
+            "Registers", 4, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg, (ImVec2) { 0.0f, 0.0f }, 0.0f))
     {
         struct GbRegisters registers = { 0 };
         if (emulator->gb)
@@ -718,7 +745,8 @@ void emulator_show_tile_data(struct Emulator *emulator)
     ImVec2 cursor_screen_pos;
     igGetCursorScreenPos(&cursor_screen_pos);
 
-    const float scale = min(available_size.x / (float) (TILE_DATA_WIDTH * GB_TILE_SIZE),
+    const float scale = min(
+        available_size.x / (float) (TILE_DATA_WIDTH * GB_TILE_SIZE),
         available_size.y / (float) (TILE_DATA_HEIGHT * GB_TILE_SIZE));
     const ImVec2 image_size = {
         .x = (float) (TILE_DATA_WIDTH * GB_TILE_SIZE) * scale,
@@ -760,7 +788,8 @@ void emulator_show_tile_maps(struct Emulator *emulator)
     ImVec2 cursor_screen_pos;
     igGetCursorScreenPos(&cursor_screen_pos);
 
-    const float scale = min(available_size.x / (float) (TILE_MAPS_WIDTH * GB_TILE_SIZE),
+    const float scale = min(
+        available_size.x / (float) (TILE_MAPS_WIDTH * GB_TILE_SIZE),
         available_size.y / (float) (TILE_MAPS_HEIGHT * GB_TILE_SIZE));
     const ImVec2 image_size = {
         .x = (float) (TILE_MAPS_WIDTH * GB_TILE_SIZE) * scale,
@@ -802,8 +831,8 @@ void emulator_show_oam(struct Emulator *emulator)
     ImVec2 cursor_screen_pos;
     igGetCursorScreenPos(&cursor_screen_pos);
 
-    const float scale
-        = min(available_size.x / (float) (OAM_WIDTH * GB_TILE_SIZE), available_size.y / (float) (OAM_HEIGHT * GB_TILE_SIZE));
+    const float scale = min(
+        available_size.x / (float) (OAM_WIDTH * GB_TILE_SIZE), available_size.y / (float) (OAM_HEIGHT * GB_TILE_SIZE));
     const ImVec2 image_size = {
         .x = (float) (OAM_WIDTH * GB_TILE_SIZE) * scale,
         .y = (float) (OAM_HEIGHT * GB_TILE_SIZE) * scale,
