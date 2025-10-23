@@ -28,8 +28,8 @@ enum GbPpuMode
 {
     GB_PPU_MODE_OAM_SCAN,
     GB_PPU_MODE_DRAWING,
-    GB_PPU_MODE_H_BLANK,
-    GB_PPU_MODE_V_BLANK,
+    GB_PPU_MODE_HBLANK,
+    GB_PPU_MODE_VBLANK,
 };
 
 struct GbPpu
